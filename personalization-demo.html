@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<!--
+  E.ON personalisation — stand-alone demo
+  Version: 2.0.0 (arkitektur)
+  Single file · no server · no dependencies · no network calls
+  Previous release archived in versions/eon-demo-v1.0.html
+-->
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>E.ON Personalisering – stand-alone demo</title>
+<style>
+  :root {
+    --red: #EA1B0A;
+    --red-dark: #C1003A;
+    --ink: #1A1A1A;
+    --muted: #8A8A8A;
+    --rail: 420px;
+    --dev: 0px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1A1A1A;
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; cursor: pointer; }
+  a { color: inherit; }
+
+  /* ── Site shell ─────────────────────────────────────────────────────── */
+  .site { min-width: 0; }
+  @media (min-width: 1024px) {
+    .site { padding-right: var(--rail); }
+  }
+
+  .site-header { position: sticky; top: 0; z-index: 40; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .utility { background: #F0F0F0; border-bottom: 1px solid #E5E5E5; }
+  .utility-inner { max-width: 72rem; margin: 0 auto; padding: 0 16px; height: 32px; display: flex; align-items: center; justify-content: flex-end; gap: 20px; }
+  .utility a { font-size: 12px; color: #555; text-decoration: none; }
+  .utility a:hover { color: var(--red); }
+  .nav-inner { max-width: 72rem; margin: 0 auto; padding: 0 16px; height: 56px; display: flex; align-items: center; gap: 12px; }
+  .logo { font-weight: 900; font-size: 26px; font-style: italic; letter-spacing: -1px; color: var(--red); text-decoration: none; margin-right: 20px; }
+  .main-nav { display: flex; gap: 4px; flex: 1; }
+  .main-nav a { font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 8px; text-decoration: none; }
+  .main-nav a:hover, .main-nav a.active { background: #F3F4F6; }
+  .login-btn { border: 0; border-radius: 999px; background: var(--red); color: #fff; font-size: 13px; font-weight: 600; padding: 9px 18px; }
+  .login-btn.ghost { background: #fff; color: var(--ink); border: 1px solid #E5E7EB; }
+  .bell { position: relative; width: 36px; height: 36px; border-radius: 50%; border: 1px solid #E5E5E5; background: #fff; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+  .bell:hover { background: #F9FAFB; }
+  .bell-badge { position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; background: var(--red); color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+  .notif-bar { background: #EFF6FF; border-bottom: 1px solid #BFDBFE; color: #1E3A8A; }
+  .notif-inner { max-width: 72rem; margin: 0 auto; padding: 9px 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .notif-inner .sp { flex: 1; }
+  .notif-inner button { border: 0; background: none; color: #1D4ED8; font-weight: 700; font-size: 12px; }
+  .inbox-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 14px; padding: 18px 20px; display: flex; gap: 14px; }
+  .inbox-card.warn { border-color: #FCA5A5; }
+  .inbox-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .inbox-cat { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-bottom: 5px; }
+  .inbox-card h3 { margin: 0 0 4px; font-size: 15px; }
+  .inbox-card p { margin: 0; font-size: 13px; color: #4B5563; line-height: 1.55; }
+  .detail-grid { display: flex; gap: 22px; flex-wrap: wrap; background: #F9FAFB; border: 1px solid #F3F4F6; border-radius: 10px; padding: 10px 14px; margin: 10px 0 12px; }
+  .detail-grid b { display: block; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: #9CA3AF; margin-bottom: 2px; }
+  .detail-grid span { font-size: 12.5px; color: #374151; font-weight: 600; }
+  .inbox-cta { border: 0; border-radius: 999px; background: var(--red); color: #fff; font-weight: 600; font-size: 12px; padding: 8px 15px; }
+  .inbox-meta { font-size: 11px; color: #9CA3AF; margin-top: 8px; }
+  .outage-details { background: rgba(0,0,0,.2); border-radius: 12px; padding: 10px 14px; font-size: 12px; min-width: 230px; }
+  .outage-details p { margin: 0 0 3px; color: rgba(255,255,255,.92); }
+  .outage-details p b { color: #fff; }
+  .outage-details button { margin-top: 6px; border: 0; background: none; color: #fff; text-decoration: underline; font-weight: 600; font-size: 12px; padding: 0; }
+  .user-pill { font-size: 12px; color: #555; }
+
+  .page { max-width: 72rem; margin: 0 auto; padding: 0 16px; }
+  .hero { background: linear-gradient(135deg, #EA1B0A 0%, #C1003A 55%, #8B0060 100%); padding: 56px 0 64px; }
+  .hero .page { max-width: 60rem; }
+  .hero h1 { color: #fff; font-size: 44px; line-height: 1.1; margin: 0 0 14px; letter-spacing: -1px; }
+  .hero p.lead { color: rgba(255,255,255,.72); font-size: 18px; max-width: 640px; margin: 0 0 24px; line-height: 1.5; }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { border: 0; border-radius: 999px; padding: 12px 22px; font-weight: 600; font-size: 14px; }
+  .btn-white { background: #fff; color: var(--red); }
+  .btn-dark { background: var(--ink); color: #fff; }
+  .btn-red { background: var(--red); color: #fff; }
+
+  .offer-card { background: #1A1A1A; border-radius: 18px; overflow: hidden; color: #fff; }
+  .offer-card .kicker { padding: 18px 32px 0; display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,.5); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  .offer-card .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+  .offer-card .body { padding: 18px 32px 32px; }
+  .offer-card h2 { margin: 0 0 14px; font-size: 30px; line-height: 1.2; }
+  .offer-card p { margin: 0 0 20px; color: rgba(255,255,255,.65); line-height: 1.6; max-width: 640px; }
+  .offer-chip { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; background: rgba(234,27,10,.12); border: 1px solid rgba(234,27,10,.3); border-radius: 10px; padding: 9px 14px; margin-bottom: 20px; font-size: 12px; }
+  .offer-chip .lbl { color: var(--red); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .offer-chip .val { color: rgba(255,255,255,.6); }
+  .why { margin-top: 18px; }
+  .why button { background: none; border: 0; color: rgba(255,255,255,.4); font-size: 12px; padding: 0; }
+  .why .explain { margin-top: 8px; background: rgba(255,255,255,.06); border-radius: 10px; padding: 12px; font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.6; }
+  .action-box { margin-top: 18px; display: flex; gap: 14px; align-items: flex-start; border-radius: 12px; padding: 16px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); }
+  .action-box.outage { background: rgba(234,27,10,.12); border-color: rgba(234,27,10,.4); }
+  .action-box .icon { font-size: 20px; }
+  .action-box .kicker { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 4px; }
+  .action-box.outage .kicker { color: var(--red); }
+  .action-box h3 { margin: 0 0 4px; font-size: 14px; color: #fff; }
+  .action-box p { margin: 0 0 12px; font-size: 12px; color: rgba(255,255,255,.55); line-height: 1.5; }
+  .action-box button { border: 0; border-radius: 999px; background: rgba(255,255,255,.15); color: #fff; font-size: 12px; font-weight: 600; padding: 8px 14px; }
+  .action-box.outage button { background: var(--red); }
+
+  .section { padding: 56px 0; }
+  .section.alt { background: #F7F7F7; }
+  .section h2 { margin: 0 0 8px; font-size: 30px; }
+  .section p.sub { margin: 0 0 28px; color: #6B7280; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+  .card { position: relative; background: #fff; border: 1px solid #E5E7EB; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; }
+  .card h3 { margin: 0 0 4px; font-size: 18px; }
+  .card .price { font-size: 13px; color: #6B7280; margin-bottom: 12px; }
+  .card ul { margin: 0 0 18px; padding-left: 18px; color: #4B5563; font-size: 13px; line-height: 1.8; }
+  .card .cta { margin-top: auto; }
+  .card .cta button { width: 100%; border: 1px solid #E5E7EB; background: #fff; border-radius: 10px; padding: 10px; font-weight: 600; font-size: 13px; }
+  .card.nbo { border-color: var(--red); box-shadow: inset 0 0 0 2px var(--red); }
+  .nbo-badge { position: absolute; top: -12px; left: 16px; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .card .badge { display: inline-block; background: #FFF1E8; color: #B45309; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; margin-bottom: 10px; align-self: flex-start; }
+
+  .matrix-wrap { overflow-x: auto; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  table.matrix { width: 100%; min-width: 620px; border-collapse: collapse; background: #fff; }
+  .matrix th { background: #1A1A1A; color: #fff; font-size: 14px; font-weight: 700; padding: 16px 20px; text-align: center; position: relative; }
+  .matrix th.fn { text-align: left; color: rgba(255,255,255,.45); font-weight: 500; width: 180px; }
+  .matrix th .hl { display: block; color: var(--red); font-size: 11px; font-weight: 600; margin-top: 2px; }
+  .matrix th.nbo::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 3px var(--red); pointer-events: none; }
+  .matrix th .badge { display: inline-block; margin-top: 6px; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+  .matrix td { padding: 14px 20px; font-size: 13px; text-align: center; border-bottom: 1px solid #F3F4F6; color: #374151; }
+  .matrix td.fn { text-align: left; font-weight: 600; color: #4B5563; }
+  .matrix tr:nth-child(even) td { background: #FAFAFA; }
+  .matrix tr:last-child td { border-bottom: 0; }
+
+  .inbox-list { display: flex; flex-direction: column; gap: 12px; }
+  .inbox-item { background: #fff; border: 1px solid #E5E7EB; border-left: 3px solid var(--red); border-radius: 12px; padding: 16px 18px; }
+  .inbox-item h3 { margin: 0 0 4px; font-size: 14px; }
+  .inbox-item p { margin: 0; font-size: 13px; color: #4B5563; line-height: 1.55; }
+  .inbox-item .meta { font-size: 11px; color: #9CA3AF; margin-top: 8px; }
+
+  .feature-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; text-align: center; }
+  .feature-strip .icon { font-size: 32px; margin-bottom: 8px; }
+  .feature-strip h3 { margin: 0 0 4px; font-size: 15px; }
+  .feature-strip p { margin: 0; font-size: 13px; color: #6B7280; }
+
+  .outage-banner { background: linear-gradient(135deg, #C1003A 0%, #EA1B0A 100%); color: #fff; padding: 16px; position: relative; z-index: 30; }
+  .outage-banner .page { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .outage-banner strong { display: block; font-size: 14px; }
+  .outage-banner span { font-size: 12px; color: rgba(255,255,255,.75); }
+  .outage-banner button { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); color: #fff; border-radius: 999px; padding: 7px 14px; font-size: 12px; font-weight: 600; }
+
+  .site-footer { background: #1A1A1A; color: rgba(255,255,255,.45); padding: 40px 0 150px; }
+  .site-footer .logo { color: var(--red); font-size: 20px; }
+
+  /* ── Channel rail ───────────────────────────────────────────────────── */
+  .rail {
+    background: #F7F7F7;
+    border-left: 1px solid #D9D9D9;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  @media (min-width: 1024px) {
+    .rail { position: fixed; top: 0; right: 0; width: var(--rail); height: var(--dev); z-index: 50; }
+  }
+  @media (max-width: 1023px) {
+    .rail { border-top: 1px solid #D9D9D9; border-left: 0; }
+  }
+  .rail-head { background: #fff; border-bottom: 2px solid var(--red); padding: 14px 20px; flex-shrink: 0; }
+  .rail-head .kicker { color: var(--red); font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0; }
+  .rail-head h2 { margin: 4px 0 0; font-size: 16px; line-height: 1.2; }
+  .rail-head p { margin: 2px 0 0; font-size: 11px; color: var(--muted); }
+  .rail-body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 12px; }
+  .rail-intro { margin: 0 0 10px; padding: 0 4px; font-size: 11px; color: #6B7280; }
+  .rail-empty { text-align: center; padding: 40px 20px; color: #9CA3AF; }
+  .rail-empty .icon { font-size: 28px; margin-bottom: 8px; }
+  .rail-empty p { font-size: 12px; line-height: 1.6; margin: 0; }
+  .divider { margin: 14px 0 0; padding-top: 14px; border-top: 1px solid rgba(0,0,0,.12); }
+  .panel { border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,0,0,.08); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .panel-head { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 2px solid; }
+  .panel-head .pic { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .panel-head .t { flex: 1; min-width: 0; }
+  .panel-head .t b { display: block; font-size: 13px; line-height: 1.15; }
+  .panel-head .t span { display: block; font-size: 10px; }
+  .panel-head .count { border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+  .panel-body { padding: 4px 14px; }
+  .panel-body.none { padding: 16px 14px; text-align: center; font-size: 11px; }
+  .sms-row { padding: 12px 0; display: flex; }
+  .sms-bubble { background: #1E293B; color: #E2E8F0; max-width: 88%; border-radius: 14px 14px 14px 3px; padding: 9px 13px; font-size: 13px; line-height: 1.45; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+  .sms-bubble .meta { display: block; text-align: right; font-size: 10px; color: rgba(255,255,255,.4); margin-top: 4px; }
+  .msg { padding: 10px 0; }
+  .msg + .msg { border-top: 1px solid rgba(0,0,0,.07); }
+  .msg .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .msg .top b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .msg .top span { font-size: 10px; color: #9CA3AF; white-space: nowrap; }
+  .msg p { margin: 2px 0 0; font-size: 12.5px; line-height: 1.45; }
+  .msg .meta { font-size: 10px; color: #9CA3AF; margin-top: 4px; }
+
+  /* ── Dev tools ──────────────────────────────────────────────────────── */
+  .devtools { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; }
+  .scenario-bar {
+    position: absolute; left: 0; right: 0; bottom: 100%;
+    background: #12234A; color: #DCE6FF;
+    padding: 8px 16px 10px;
+    font-size: 12px;
+  }
+  .scenario-main { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .scenario-chip { background: var(--red); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .1em; padding: 3px 8px; border-radius: 4px; }
+  .pill { border: 1px solid rgba(143,179,255,.4); background: rgba(143,179,255,.08); color: #DCE6FF; border-radius: 999px; padding: 4px 12px; font-size: 12px; }
+  .pill:hover { background: rgba(255,255,255,.15); }
+  .scen-title { color: #ff6a5e; font-weight: 700; }
+  .step-btn { background: var(--red); color: #fff; border: 0; border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
+  .ghost-btn { background: rgba(255,255,255,.1); color: rgba(255,255,255,.75); border: 0; border-radius: 999px; padding: 4px 10px; font-size: 12px; }
+  .icon-btn { background: none; border: 0; color: rgba(255,255,255,.5); font-size: 14px; }
+  .scenario-notes { margin: 6px 0 0; font-size: 11px; color: rgba(220,230,255,.6); line-height: 1.5; }
+  .scenario-notes .check { color: #4ADE80; font-weight: 700; }
+
+  .persona-bar { background: #0F0F0F; color: #fff; padding: 10px 16px 12px; border-top: 1px solid rgba(255,255,255,.08); }
+  .persona-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .persona-chip { background: var(--red); border: 0; color: #fff; border-radius: 999px; font-weight: 700; font-size: 13px; padding: 6px 14px; }
+  .persona-name { font-size: 13px; font-weight: 700; }
+  .persona-meta { font-size: 11px; color: rgba(255,255,255,.45); }
+  .login-pill { border: 0; border-radius: 999px; padding: 5px 12px; font-size: 11px; font-weight: 700; }
+  .login-pill.on { background: #EA1B0A; color: #fff; }
+  .login-pill.off { background: rgba(255,255,255,.14); color: #fff; }
+  .spacer { flex: 1; }
+  .toggle-wrap { display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(255,255,255,.6); }
+  .toggle { width: 34px; height: 18px; border-radius: 999px; background: #EA1B0A; position: relative; border: 0; }
+  .toggle::after { content: ""; position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
+  .toggle.off { background: rgba(255,255,255,.25); }
+  .toggle.off::after { right: auto; left: 2px; }
+  .reset-btn { border: 0; background: rgba(255,255,255,.1); color: rgba(255,255,255,.6); border-radius: 999px; font-size: 11px; padding: 5px 10px; }
+  .model-grid { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 9px; }
+  .model { display: flex; align-items: center; gap: 7px; font-size: 10px; color: rgba(255,255,255,.55); }
+  .model .track { width: 76px; height: 5px; border-radius: 999px; background: rgba(255,255,255,.18); overflow: hidden; }
+  .model .fill { height: 100%; border-radius: 999px; }
+  .model b { color: #fff; font-size: 10px; width: 30px; text-align: right; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { background: rgba(255,255,255,.12); border-radius: 999px; padding: 3px 9px; font-size: 10px; color: rgba(255,255,255,.65); }
+  .chip.prod { background: rgba(255,255,255,.06); }
+  .persona-detail { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-top: 8px; }
+  .persona-menu { position: absolute; left: 16px; bottom: calc(100% + 10px); background: #1A1A1A; border: 1px solid rgba(255,255,255,.15); border-radius: 12px; padding: 6px; z-index: 70; width: 280px; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+  .persona-menu button { display: block; width: 100%; text-align: left; background: none; border: 0; color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 12px; }
+  .persona-menu button:hover { background: rgba(255,255,255,.1); }
+  .persona-menu button span { display: block; color: rgba(255,255,255,.45); font-size: 10px; margin-top: 2px; }
+  .persona-menu-wrap { position: relative; }
+  @media (min-width: 1024px) { .persona-menu-wrap { position: static; } }
+
+  /* ── Architecture view ─────────────────────────────────────────────── */
+  .arch-link { border: 1px solid rgba(143,179,255,.4); background: rgba(255,255,255,.08); color: #DCE6FF; border-radius: 999px; padding: 4px 11px; font-size: 12px; }
+  .arch-link:hover { background: rgba(255,255,255,.18); }
+  .arch-hero { background: radial-gradient(1100px 340px at 15% -10%, #1E3A8A 0%, #0B1220 60%, #080D18 100%); color: #fff; padding: 52px 0 48px; }
+  .arch-hero .kicker { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #93C5FD; margin-bottom: 12px; }
+  .arch-hero .kicker .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+  .arch-hero h1 { margin: 0 0 12px; font-size: 42px; line-height: 1.1; letter-spacing: -1px; }
+  .arch-hero p { margin: 0 0 20px; max-width: 720px; color: rgba(255,255,255,.65); font-size: 16px; line-height: 1.6; }
+  .arch-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+  .arch-stats span { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 5px 12px; font-size: 11px; color: rgba(255,255,255,.75); }
+  .arch-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .arch-toolbar .lbl { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #9CA3AF; margin-right: 4px; }
+  .arch-tab { border: 1px solid #E5E7EB; background: #fff; color: #374151; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
+  .arch-tab:hover { border-color: #D1D5DB; background: #F9FAFB; }
+  .arch-tab.on { background: #12234A; border-color: #12234A; color: #fff; }
+  .arch-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 0 0 18px; }
+  .arch-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #6B7280; }
+  .arch-legend i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+  .arch-layers { display: flex; flex-direction: column; gap: 0; }
+  .arch-layer { background: #fff; border: 1px solid #E5E7EB; border-radius: 16px; padding: 14px 16px 16px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .arch-layer-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .arch-layer-head .lt { display: flex; align-items: center; gap: 8px; }
+  .arch-layer-head .lt i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .arch-layer-head b { font-size: 13px; }
+  .arch-layer-head span { font-size: 11px; color: #9CA3AF; }
+  .arch-nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(152px, 1fr)); gap: 9px; }
+  .arch-node { text-align: left; background: #fff; border: 1px solid #E5E7EB; border-radius: 11px; padding: 9px 11px; position: relative; }
+  .arch-node:hover { border-color: #9CA3AF; }
+  .arch-node .ico { font-size: 15px; line-height: 1; display: block; margin-bottom: 5px; }
+  .arch-node b { display: block; font-size: 12.5px; line-height: 1.25; color: #111827; }
+  .arch-node span { display: block; font-size: 10.5px; line-height: 1.35; color: #9CA3AF; margin-top: 2px; }
+  .arch-node.active { border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); background: var(--accent-soft, #fff); }
+  .arch-node .mark { position: absolute; top: 7px; right: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .arch-wrap.has-selection .arch-node:not(.active) { opacity: .38; }
+  .arch-wrap.has-selection .arch-node:not(.active):hover { opacity: .7; }
+  .arch-node.sel { outline: 2px solid #111827; outline-offset: 2px; }
+  .arch-flow { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 7px 0; font-size: 10px; color: #9CA3AF; text-align: center; flex-wrap: wrap; }
+  .arch-flow b { color: #6B7280; font-weight: 600; }
+  .arch-nodeinfo { margin: 0 0 14px; scroll-margin-top: 100px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .arch-nodeinfo .ico { width: 34px; height: 34px; border-radius: 9px; background: #fff; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .arch-nodeinfo h3 { margin: 0 0 2px; font-size: 13px; }
+  .arch-nodeinfo p { margin: 0; font-size: 12px; color: #4B5563; line-height: 1.5; }
+  .arch-nodeinfo .used { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+  .arch-nodeinfo .used button { border: 0; background: #E0E7FF; color: #3730A3; border-radius: 999px; padding: 2px 8px; font-size: 10px; font-weight: 600; }
+  .arch-detail { margin-top: 22px; }
+  .arch-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .arch-detail-head h2 { margin: 0 0 4px; font-size: 22px; }
+  .arch-detail-head p { margin: 0; color: #6B7280; font-size: 13px; line-height: 1.55; max-width: 720px; }
+  .arch-count { font-size: 11px; color: #6B7280; background: #F3F4F6; border-radius: 999px; padding: 5px 11px; white-space: nowrap; }
+  .arch-flow-list { display: grid; grid-template-columns: 1fr; gap: 0; border: 1px solid #E5E7EB; border-radius: 14px; overflow: hidden; background: #fff; }
+  .arch-step { display: flex; gap: 12px; padding: 11px 14px; border-bottom: 1px solid #F3F4F6; align-items: flex-start; }
+  .arch-step:last-child { border-bottom: 0; }
+  .arch-step .n { width: 22px; height: 22px; border-radius: 50%; background: #12234A; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .arch-step b { display: block; font-size: 12.5px; }
+  .arch-step span { display: block; font-size: 12px; color: #6B7280; line-height: 1.45; margin-top: 1px; }
+  .arch-step .sys { font-size: 10px; color: #9CA3AF; margin-top: 3px; }
+  .arch-used { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 14px; }
+  .arch-used .chip { background: #F3F4F6; color: #4B5563; }
+  .arch-scenarios { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .arch-scenario { text-align: left; background: #fff; border: 1px solid #E5E7EB; border-radius: 14px; padding: 15px 16px; }
+  .arch-scenario:hover { border-color: #9CA3AF; }
+  .arch-scenario .tag { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--red); }
+  .arch-scenario h3 { margin: 5px 0 4px; font-size: 15px; }
+  .arch-scenario p { margin: 0 0 10px; font-size: 12px; color: #6B7280; line-height: 1.5; }
+  .arch-scenario .meta { font-size: 11px; color: #9CA3AF; }
+  .arch-note { margin-top: 18px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 12px 14px; font-size: 12px; color: #92400E; line-height: 1.55; }
+  .arch-tablewrap { overflow-x: auto; border: 1px solid #E5E7EB; border-radius: 14px; background: #fff; }
+  table.arch-matrix { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 12px; }
+  .arch-matrix thead th { background: #0F172A; color: #fff; font-weight: 600; font-size: 11px; padding: 10px 8px; text-align: center; white-space: nowrap; }
+  .arch-matrix thead th:first-child { text-align: left; padding-left: 16px; color: rgba(255,255,255,.55); }
+  .arch-matrix tbody td { padding: 7px 8px; border-bottom: 1px solid #F3F4F6; text-align: center; }
+  .arch-matrix tbody td:first-child { text-align: left; padding-left: 16px; font-weight: 600; color: #374151; white-space: nowrap; }
+  .arch-matrix tbody tr:last-child td { border-bottom: 0; }
+  .arch-matrix tbody tr.group td { background: #F8FAFC; color: #64748B; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 6px 16px; text-align: left; }
+  .arch-matrix .yes { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+  .arch-matrix .no { color: #E5E7EB; }
+  .arch-matrix td.on { background: #FFF5F5; }
+
+  @media (max-width: 720px) {
+    .arch-hero h1 { font-size: 32px; }
+    .arch-layer { padding: 12px; }
+    .arch-nodes { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+  }
+
+  @media (max-width: 720px) {
+    .hero h1 { font-size: 32px; }
+    .main-nav { overflow-x: auto; }
+    .offer-card h2 { font-size: 24px; }
+    .offer-card .kicker, .offer-card .body { padding-left: 20px; padding-right: 20px; }
+    .matrix th, .matrix td { padding-left: 12px; padding-right: 12px; }
+    .model-grid { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+  <div class="site" id="site"></div>
+  <aside class="rail" id="rail"></aside>
+  <div class="devtools" id="devtools">
+    <div class="scenario-bar" id="scenarioBar"></div>
+    <div class="persona-bar" id="personaBar"></div>
+  </div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   E.ON personalisation demo — stand-alone, hardcoded, no server.
+   Open this file directly in a browser. Everything lives in this one file.
+   ════════════════════════════════════════════════════════════════════════ */
+
+// ── Static catalog ─────────────────────────────────────────────────────────
+const TARIFFS = [
+  { slug: 'fast-elpris', name: 'Fast elpris', price: 'Fast kilowattpris', highlight: '',
+    desc: 'Samma pris under hela bindningstiden — tryggt och stabilt.',
+    rows: ['Fast kilowattpris', '4–6 mån eller 1–3 år', '49 kr/mån', 'För dig som vill ha förutsägbarhet'] },
+  { slug: 'rorligt-elpris', name: 'Rörligt elpris', price: 'Rörligt månadspris', highlight: '',
+    desc: 'Priset följer marknaden varje månad — ingen bindningstid.',
+    rows: ['Rörligt månadspris', 'Ingen bindningstid', '49 kr/mån', 'För dig som vill följa marknaden'] },
+  { slug: 'kvartspris', name: 'Kvartspris', price: 'Elpris per kvart', highlight: 'Passar elbil & solceller',
+    desc: 'Styr förbrukningen till när elen är billigast — passar elbil och solceller.',
+    rows: ['Elpris per kvart', 'Ingen bindningstid', '49 kr/mån', 'För dig med elbil eller solceller'] },
+  { slug: 'mixpris', name: 'Mixpris', price: '50/50 fast och rörligt', highlight: 'Tryggt och flexibelt',
+    desc: 'Halva förbrukningen till fast pris, halva till rörligt.',
+    rows: ['50 % fast / 50 % rörligt', '1 år', '49 kr/mån', 'För dig som vill ha både och'] },
+]
+
+const PRODUCTS = [
+  { slug: 'kvartspris', name: 'Kvartspris', kind: 'Elavtal', price: 'Se ditt pris' },
+  { slug: 'fast-elpris', name: 'Fast elpris', kind: 'Elavtal', price: 'Se ditt pris' },
+  { slug: 'rorligt-elpris', name: 'Rörligt elpris', kind: 'Elavtal', price: 'Se ditt pris' },
+  { slug: 'mixpris', name: 'Mixpris', kind: 'Elavtal', price: 'Se ditt pris' },
+  { slug: 'kvartspris-smartladdning', name: 'Kvartspris + Smartladdning', kind: 'Paket', price: '300 kr/år i rabatt' },
+  { slug: 'zaptec-go', name: 'Zaptec Go', kind: 'Laddbox', price: 'Från 5 390 kr' },
+  { slug: 'zaptec-go-2', name: 'Zaptec Go 2', kind: 'Laddbox', price: 'Från 6 890 kr' },
+  { slug: 'smartladdning', name: 'Smartladdning', kind: 'Tjänst', price: 'Kostnadsfritt' },
+  { slug: 'luftvarmepump', name: 'Luftvärmepump', kind: 'Värmepump', price: 'Från 18 199 kr' },
+  { slug: 'smart-varmestyrning', name: 'Smart värmestyrning', kind: 'Tjänst', price: 'Kostnadsfritt' },
+]
+
+const EV_PRODUCTS = [
+  { slug: 'zaptec-go', name: 'Zaptec Go', price: 'Från 5 390 kr', badge: '600 kr i rabatt',
+    features: ['11 kW laddning', 'Inbyggd lastbalansering', 'Snygg och kompakt'] },
+  { slug: 'zaptec-go-2', name: 'Zaptec Go 2', price: 'Från 6 890 kr', badge: '600 kr i rabatt',
+    features: ['22 kW laddning', 'Wi-Fi och appstyrning', 'Förberedd för solceller'] },
+  { slug: 'smartladdning', name: 'Smartladdning', price: 'Kostnadsfritt', badge: 'Aktivera kostnadsfritt',
+    features: ['Ladda på billigaste kvartarna', 'Schemalägg i appen', 'Fungerar med Kvartspris'] },
+]
+
+// ── Offers & actions (what NBO/NBA can serve) ──────────────────────────────
+const OFFERS = {
+  bundle: {
+    id: 'bundle', name: 'Kvartspris + Smartladdning', product: 'Kvartspris', value: '300 kr/år',
+    headline: 'Ditt elavtal och smart laddning — i ett paket.',
+    body: 'Kvartspris styr laddningen till kvartarna när elen är billigast. Du får laddboxen med 600 kr i rabatt och Smartladdning utan extra kostnad.',
+    cta: 'Se paketet', url: 'tariffs', productSlug: 'kvartspris',
+  },
+  green: {
+    id: 'green', name: 'Fri månadsavgift i 6 månader', product: 'Rörligt elpris (fossilfri)', value: '49 kr/mån i 6 mån',
+    headline: 'Byt till fossilfri rörlig el.',
+    body: 'All el du köper är producerad från förnybara källor. Just nu slipper du månadsavgiften i sex månader.',
+    cta: 'Se fossilfri el', url: 'tariffs', productSlug: 'rorligt-elpris',
+  },
+  laddbox: {
+    id: 'laddbox', name: 'Laddboxrabatt 600 kr', product: 'Zaptec Go', value: '600 kr',
+    headline: 'Ladda hemma — med 600 kr i rabatt.',
+    body: 'Zaptec Go installeras av behörig elektriker och laddar säkert med lastbalansering. Beställ innan månaden är slut.',
+    cta: 'Se laddboxar', url: 'ev-charging', productSlug: 'zaptec-go',
+  },
+  retention: {
+    id: 'retention', name: 'Fri månadsavgift i 6 månader', product: 'Fast elpris', value: '49 kr/mån i 6 mån',
+    headline: 'Vi vill behålla dig som kund.',
+    body: 'Innan du byter — låt oss titta på ditt pris. Vi slopar månadsavgiften i sex månader och går igenom ditt avtal tillsammans.',
+    cta: 'Se ditt erbjudande', url: 'tariffs', productSlug: 'fast-elpris',
+  },
+  varmepump: {
+    id: 'varmepump', name: 'Värmepumpsrabatt upp till 2 000 kr', product: 'Luftvärmepump', value: '2 000 kr',
+    headline: 'Sänk uppvärmningskostnaden.',
+    body: 'Luftvärmepump med installation av behörig installatör. Just nu upp till 2 000 kr i rabatt.',
+    cta: 'Se värmepumpar', url: 'varmepump', productSlug: 'luftvarmepump',
+  },
+}
+
+const FALLBACK = {
+  id: 'fallback', name: '', product: '', value: '',
+  headline: 'Energi för ditt hem.',
+  body: 'Rena, smarta energilösningar — solceller, elbilsladdning och elavtal som passar dig.',
+  cta: '', url: 'tariffs', productSlug: '',
+}
+
+// ── Personas (hardcoded from the demo database) ────────────────────────────
+const PERSONAS = {
+  eva: {
+    id: 'eva', name: 'Eva Lindström', tariff: 'green', usage: 18000, housing: 'Villa', postcode: '111 22',
+    scores: { ev: 0.15, churn: 0.08, green: 0.92, solar: 0.48 },
+    holdings: ['Kvartspris + Smartladdning'],
+    segments: ['green affinity high', 'ev owners'],
+  },
+  karin: {
+    id: 'karin', name: 'Karin Larsson', tariff: 'green', usage: 13000, housing: 'Villa', postcode: '352 31',
+    scores: { ev: 0.74, churn: 0.06, green: 0.88, solar: 0.52 },
+    holdings: ['Rörligt elpris'],
+    segments: ['green affinity high', 'ev prospects'],
+  },
+  jonas: {
+    id: 'jonas', name: 'Jonas Svensson', tariff: 'none', usage: 11222, housing: 'Villa', postcode: '254 33',
+    scores: { ev: 0.42, churn: 0.12, green: 0.35, solar: 0.4 },
+    holdings: [],
+    segments: ['ev prospects'],
+  },
+  lars: {
+    id: 'lars', name: 'Lars Eriksson', tariff: 'fast', usage: 16000, housing: 'Lägenhet', postcode: '211 20',
+    scores: { ev: 0.08, churn: 0.42, green: 0.24, solar: 0.18 },
+    holdings: ['Fast elpris'],
+    segments: ['heavy users'],
+  },
+  anders: {
+    id: 'anders', name: 'Anders Petersson', tariff: 'fast', usage: 20000, housing: 'Villa', postcode: '169 70',
+    scores: { ev: 0.1, churn: 0.2, green: 0.55, solar: 0.4 },
+    holdings: ['Fast elpris'],
+    segments: ['green affinity high', 'loyalty high'],
+  },
+}
+
+const tariffLabel = (t) => t === 'green' ? 'green tariff' : t === 'fast' ? 'fast tariff' : t === 'rorligt' ? 'rörligt elavtal' : 'inget elavtal'
+
+// ── Scenarios (hardcoded journey steps) ────────────────────────────────────
+const SCENARIOS = [
+  {
+    key: 'ev_journey', title: 'Elbilsresan', persona: 'jonas',
+    steps: [
+      {
+        label: 'Utforskar elbilsladdning', page: 'ev-charging',
+        notes: ['Signalen ev_charging_page_view registreras i kundprofilen', 'EV-benägenheten är fortfarande låg — inga segmentändringar', 'NBO/NBA: inget relevant idag'],
+        apply: { scores: { ev: 0.45 } },
+      },
+      {
+        label: 'Räknar på hemmaladdning', page: 'tariffs',
+        notes: ['Avtalskalkylatorn registreras (tariff_calculator_use)', 'Profilen uppdateras: EV-benägenhet → 0,85', 'Segment beräknas om → ev_prospects', 'NBO beräknas om → Kvartspris + Smartladdning vinner'],
+        apply: { scores: { ev: 0.85 } },
+      },
+      {
+        label: 'Tecknar paketet', page: 'inbox',
+        notes: ['Klick registreras (offer_click)', 'Paketet läggs till i kundens innehav', 'NBO undertrycks – kunden har redan produkten', 'Välkomstmeddelande till inkorg + e-postkampanj'],
+        apply: { holding: 'Kvartspris + Smartladdning', scores: { ev: 0.9 } },
+        messages: [
+          { channel: 'sms', body: 'Hej Jonas! Ditt avtal för Kvartspris + Smartladdning är aktivt. Så här aktiverar du din laddbox: eon.se/smartladdning' },
+          { channel: 'email', subject: 'Välkommen till Kvartspris + Smartladdning', body: 'Hej Jonas! Ditt avtal är på plats. Nästa steg: hämta din Zaptec Go och koppla den till E.ON Smartladdning för att ladda på de billigaste timmarna.' },
+          { channel: 'push', subject: 'Din laddbox är på väg', body: 'Vi har skickat din Zaptec Go. Följ leveransen i appen.' },
+          { channel: 'inbox', subject: 'Välkommen, Jonas!', body: 'Ditt paket Kvartspris + Smartladdning är aktivt. Se din startguide i Mina sidor.' },
+        ],
+      },
+    ],
+  },
+  {
+    key: 'outage', title: 'Strömavbrott i området', persona: 'karin',
+    steps: [
+      {
+        label: 'Kunden surfar utloggad', page: 'home',
+        notes: ['Kunden besöker webben utan att vara inloggad', 'Webben visar generellt innehåll – inga personliga erbjudanden'],
+        apply: { login: false },
+      },
+      {
+        label: 'Strömavbrott rapporteras', page: 'home',
+        notes: ['Incident registreras: outage_reported (elnät: lokalt)', 'Kundprofilen uppdateras med avbrottpåverkan', 'NBA sätts till driftinformation → banner / inkorg / sms', 'Alla kommersiella erbjudanden undertrycks'],
+        apply: { outage: true },
+        messages: [
+          { channel: 'sms', body: 'Ett strömavbrott har registrerats i ditt område. Beräknad återställning om ca 2 timmar. Status: eon.se/driftsinformation' },
+          { channel: 'push', subject: 'Strömavbrott i ditt område', body: 'Karin, vi arbetar på ett avbrott i ditt lokala elnät. Beräknad återställning: ca 2 timmar.' },
+          { channel: 'inbox', subject: 'Strömavbrott i ditt område', body: 'Vi arbetar på avbrottet i ditt lokala elnät. Beräknad återställning: ca 2 timmar. Du får en ny uppdatering när strömmen är tillbaka.' },
+        ],
+      },
+      {
+        label: 'Kunden loggar in', page: 'inbox',
+        notes: ['Kunden loggar in (session: inloggad)', 'Personlig banner med avtal, område och beräknad återställning', 'Inkorg: meddelande med detaljerad status'],
+        apply: { login: true },
+        messages: [
+          { channel: 'push', subject: 'Uppdatering: strömavbrott', body: 'Reparatörerna är på plats i ditt område. Följ statusen för ditt avtal i Mina sidor.' },
+          { channel: 'inbox', subject: 'Lägesrapport – ditt elnät', body: 'Reparation pågår i ditt lokala elnät. Beräknad återställning: ca 2 timmar.' },
+        ],
+      },
+      {
+        label: 'Strömmen är åter', page: 'home',
+        notes: ['Incidenten stängs (outage_resolved)', 'Avbrottssignaler rensas från kundprofilen', 'Kommersiella erbjudanden återaktiveras', 'Bannern på webb döljs'],
+        apply: { outage: false },
+        messages: [
+          { channel: 'push', subject: 'Strömmen är tillbaka', body: 'Elförsörjningen i ditt område är återställd. Tack för tålamodet!' },
+          { channel: 'inbox', subject: 'Avbrottet är åtgärdat', body: 'Strömmen är tillbaka i ditt område. Normala villkor gäller.' },
+        ],
+      },
+    ],
+  },
+  {
+    key: 'price_compare', title: 'Kund i riskzonen', persona: 'lars',
+    steps: [
+      {
+        label: 'Jämför priser', page: 'tariffs',
+        notes: ['Jämförelsesignal registreras (comparison_view)', 'Profilen uppdateras: churn-risk → 0,8', 'Segment beräknas om → churn_risk', 'Kommersiellt NBO försvinner', 'Trigger → retentionskampanj (e-post)'],
+        apply: { scores: { churn: 0.8 } },
+        messages: [
+          { channel: 'email', subject: 'Vi vill behålla dig som kund', body: 'Hej Lars! Vi ser att du har jämfört elpriser. Vi vill gärna hitta ett bättre elavtal åt dig — ring oss så tittar vi på ditt pris.' },
+        ],
+      },
+      {
+        label: 'Besöker avslutsflödet', page: 'home',
+        notes: ['Sidan /avsluta besöks (page_view)', 'Profilen uppdateras: churn-risk → 0,9', 'Inga kommersiella erbjudanden', 'Endast serviceinnehåll kvar'],
+        apply: { scores: { churn: 0.9 } },
+      },
+    ],
+  },
+  {
+    key: 'green_interest', title: 'Går grönt', persona: 'anders',
+    steps: [
+      {
+        label: 'Läser om fossilfri el', page: 'tariffs',
+        notes: ['Grön-toppsida besöks (green_tariff_page_view)', 'Profilen uppdateras: grönbenägenhet → 0,8', 'Segment beräknas om → green_affinity_high', 'NBO: fossilfri rörlig el'],
+        apply: { scores: { green: 0.8 } },
+      },
+      {
+        label: 'Prenumererar på nyhetsbrev', page: 'home',
+        notes: ['Nyhetsbrevsprenumeration registreras', 'Profilen uppdateras (nyhetsbrev: prenumererad)', 'NBA för nyhetsbrev tas bort – kunden är redan prenumererad'],
+        apply: { newsletter: true },
+        messages: [
+          { channel: 'email', subject: 'Välkommen till vårt nyhetsbrev', body: 'Hej Anders! Tack för att du prenumererar. Du får tips om fossilfri el, solceller och laddning — först i brevlådan.' },
+        ],
+      },
+    ],
+  },
+  {
+    key: 'anon_smart', title: 'Smart targeting (okänd)', persona: null, anonymous: true,
+    steps: [
+      {
+        label: 'Besökaren utforskar elbilsladdning', page: 'ev-charging',
+        notes: ['Besökaren (okänd, endast cookie) öppnar elbilsladdningssidan', 'Signaler samlas löpande under den anonyma kakan', 'EV-benägenhet beräknas i realtid'],
+        apply: { anonymous: true, scores: { ev: 0.7 } },
+      },
+      {
+        label: 'Realtidsbeslut från signaler', page: 'home',
+        notes: ['Signaler → beteendebaserad scoring', 'Segment härleds i realtid (ev_prospects)', 'NBO/NBA beräknas utan konto eller inloggning', 'Kanal: webb är öppen; inkorg kräver inloggning'],
+        apply: {},
+      },
+    ],
+  },
+  {
+    key: 'anon_to_profile', title: 'Okänd besökare → blir kund', persona: 'anders', anonymous: true,
+    steps: [
+      {
+        label: 'Anonyma signaler samlas', page: 'ev-charging',
+        notes: ['Besökaren är okänd och skickar elbilsignaler', 'Ingen profil ännu – inga personliga erbjudanden'],
+        apply: { anonymous: true, scores: { ev: 0.7 } },
+      },
+      {
+        label: 'Besökaren identifieras (loggar in)', page: 'home',
+        notes: ['Anonyma signaler kopplas till profilen (Anders)', 'Anders tecknar ett elavtal (Fast elpris) – kan nu logga in', 'Segment beräknas om – Anders hamnar i ev_prospects', 'Beslut skapas med nytt NBO/NBA'],
+        apply: { identify: 'anders', login: true, holding: 'Fast elpris', scores: { ev: 0.7 } },
+        messages: [
+          { channel: 'email', subject: 'Välkommen till E.ON — ditt Fast elpris är aktivt', body: 'Hej Anders! Tack för att du tecknade ditt elavtal hos oss. Vi startar leveransen så snart som möjligt.' },
+          { channel: 'push', subject: 'Välkommen till E.ON!', body: 'Ditt elavtal (Fast elpris) är registrerat. Välkommen!' },
+          { channel: 'inbox', subject: 'Välkommen, Anders!', body: 'Ditt elavtal Fast elpris är aktivt. Se ditt pris och avtal i Mina sidor.' },
+        ],
+      },
+      {
+        label: 'Nytt NBO/NBA från profilen', page: 'tariffs',
+        notes: ['Beslutsmotorn kör mot Anders uppdaterade profil', 'NBO: Kvartspris + Smartladdning (villa + EV-intresse)', 'Kanal: webb (paketet markeras), inkorg'],
+        apply: {},
+      },
+    ],
+  },
+]
+
+// ── Architecture: capabilities & systems behind the scenarios ─────────────
+const ARCH_LAYERS = [
+  {
+    id: 'channels', title: 'Kundmöte & kanaler', hint: 'Där kunden ser oss',
+    color: '#2563EB', soft: '#EFF6FF',
+    nodes: ['web', 'inbox', 'sms', 'email', 'push'],
+  },
+  {
+    id: 'experience', title: 'Upplevelse & orkestrering', hint: 'Det kunden möter',
+    color: '#EA1B0A', soft: '#FFF1F0',
+    nodes: ['nbo', 'nba', 'webInbox', 'journey', 'admin'],
+  },
+  {
+    id: 'decision', title: 'Beslut & profil', hint: 'Det som avgör vad som visas',
+    color: '#D97706', soft: '#FFFBEB',
+    nodes: ['signals', 'scoring', 'segments', 'decision', 'catalog', 'router'],
+  },
+  {
+    id: 'systems', title: 'System & data', hint: 'Källor och masterdata',
+    color: '#059669', soft: '#ECFDF5',
+    nodes: ['cdp', 'contracts', 'incident', 'content', 'analytics', 'identity'],
+  },
+]
+
+const ARCH_NODES = {
+  web: { label: 'Webbplats', sys: 'Next.js · eon.se', icon: '🌐', desc: 'Retail-sidorna med personliga ytor, erbjudanden, NBO-badge och driftbanner.' },
+  inbox: { label: 'Inkorg', sys: 'Kanal · eon.se', icon: '📥', desc: 'Inkorg på webben. Kräver inloggning och visar erbjudanden, åtgärder och meddelanden.' },
+  sms: { label: 'SMS', sys: 'Kanal · mobil', icon: '💬', desc: 'Korta meddelanden vid avbrott och viktiga händelser.' },
+  email: { label: 'E-post', sys: 'Kanal · brevlåda', icon: '✉️', desc: 'Kampanjer, välkomstflöden och nyhetsbrev.' },
+  push: { label: 'Push', sys: 'Kanal · app', icon: '🔔', desc: 'Notiser i appen vid avbrott, leverans och uppdateringar.' },
+  nbo: { label: 'NBO-yta', sys: 'Personligt erbjudande', icon: '🎁', desc: 'Kortet på webben som visar nästa bästa erbjudande — eller undertrycks.' },
+  nba: { label: 'NBA-yta', sys: 'Rekommenderad åtgärd', icon: '💡', desc: 'Åtgärdskortet: driftinformation, retention eller nyhetsbrev.' },
+  webInbox: { label: 'Webbinkorg', sys: '/inbox', icon: '📬', desc: 'Samlar erbjudanden, åtgärder, driftstörningar och skickade meddelanden.' },
+  journey: { label: 'Scenario Studio', sys: 'Demo-orkestrering', icon: '🎬', desc: 'Scenarier och steg som driver signaler, sidbyten och utgående meddelanden.' },
+  admin: { label: 'Backoffice', sys: 'Admin', icon: '🛠️', desc: 'Kunder, avtal, erbjudanden, åtgärder och scenarier. Ingår i plattformen, inte i kundflödet.' },
+  signals: { label: 'Signalintag', sys: 'Events API', icon: '⚡', desc: 'Sidvisningar, klick, kalkylatoranvändning, inloggningar och supportkontakter.' },
+  scoring: { label: 'Scoring', sys: 'Realtid & batch', icon: '📈', desc: 'EV-benägenhet, churn-risk, grönbenägenhet och solintresse.' },
+  segments: { label: 'Segmentering', sys: 'Regelmotor', icon: '🧩', desc: 'Härledda segment som ev_prospects, churn_risk och green_affinity_high.' },
+  decision: { label: 'Beslutsmodul', sys: 'NBO / NBA', icon: '🧠', desc: 'Targeting, poängsättning, suppression, frekvenstak, fallback och variantval.' },
+  catalog: { label: 'Erbjudanden & åtgärder', sys: 'Katalog', icon: '🗂️', desc: 'Offers, actions och varianter med prioritet, målgrupp och innehåll.' },
+  router: { label: 'Meddelanderouter', sys: 'Utgående', icon: '📤', desc: 'Väljer kanal och mall, deduplicerar och levererar till inkorg, SMS, e-post och push.' },
+  cdp: { label: 'CDP / kundprofil', sys: 'Kunddata', icon: '🗄️', desc: 'Kund, samtycke, events, scores, segment, innehav och nyhetsbrev.' },
+  contracts: { label: 'Avtal & innehav', sys: 'Affärssystem', icon: '📄', desc: 'Elavtal, produkter och bindningar som styr ägande och suppression.' },
+  incident: { label: 'Drift & incidenter', sys: 'Elnät', icon: '⚠️', desc: 'Avbrottsstatus, område och beräknad återställning.' },
+  content: { label: 'Innehåll & produkter', sys: 'PIM / CMS', icon: '🏷️', desc: 'Elavtal, laddboxar, värmepumpar, texter och erbjudandevarianter.' },
+  analytics: { label: 'Analytics', sys: 'Mätning', icon: '📊', desc: 'Impressions, klick, konverteringar och omräkning av scores.' },
+  identity: { label: 'Identitet & session', sys: 'Auth & cookie', icon: '🔐', desc: 'Inloggning, anonym cookie och identify-stitching när besökaren loggar in.' },
+}
+
+const ARCH_SCENARIOS = {
+  ev_journey: {
+    title: 'Elbilsresan', persona: 'Jonas Svensson',
+    summary: 'Signaler från elbilsidor höjer EV-benägenheten. Beslutsmodulen går från utforskande till paketerbjudande och välkomstmeddelanden går ut på fyra kanaler.',
+    nodes: ['web', 'inbox', 'sms', 'email', 'push', 'nbo', 'nba', 'webInbox', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'router', 'cdp', 'contracts', 'content', 'analytics', 'identity'],
+    flow: [
+      { node: 'web', title: 'Besök på elbilsladdning', text: 'Besökaren öppnar /ev-charging och räknar på hemmaladdning.' },
+      { node: 'signals', title: 'Signaler registreras', text: 'ev_charging_page_view och tariff_calculator_use skickas till events-API:t.' },
+      { node: 'scoring', title: 'Profilen räknas om', text: 'EV-benägenheten går från 0,42 till 0,85.' },
+      { node: 'segments', title: 'Nytt segment', text: 'Profilen kvalar in i ev_prospects och slår igenom i nästa beslut.' },
+      { node: 'decision', title: 'Beslut: paketerbjudande', text: 'Kvartspris + Smartladdning vinner. Ägt paket undertrycker NBO; kvar blir NBA och serviceinnehåll.' },
+      { node: 'router', title: 'Meddelanden går ut', text: 'Välkomstmeddelande till inkorg, SMS, e-post och push.' },
+      { node: 'analytics', title: 'Mätning', text: 'Beslut, klick och konvertering loggas för uppföljning.' },
+    ],
+  },
+  outage: {
+    title: 'Strömavbrott i området', persona: 'Karin Larsson',
+    summary: 'En driftstörning slår igenom i kundprofilen. Allt kommersiellt undertrycks och serviceinformation går ut på webb, i inkorgen, via SMS och push.',
+    nodes: ['web', 'inbox', 'sms', 'push', 'nba', 'webInbox', 'journey', 'decision', 'router', 'cdp', 'contracts', 'incident', 'analytics', 'identity'],
+    flow: [
+      { node: 'incident', title: 'Avbrott rapporteras', text: 'Driftfeed registrerar ett aktivt avbrott i kundens lokala elnät.' },
+      { node: 'decision', title: 'Kommersiellt undertrycks', text: 'Beslutsmodulen växlar till service alert och stoppar alla säljerbjudanden.' },
+      { node: 'cdp', title: 'Berörd kund identifieras', text: 'Kundprofil, avtal och område kopplas ihop med incidenten.' },
+      { node: 'router', title: 'Serviceinformation', text: 'SMS, push och inkorg får status, område och beräknad återställning.' },
+      { node: 'nba', title: 'Webben visar detaljer', text: 'Banner och NBA-yta visar status, avtal och ETA; inkorgen samlar historiken.' },
+      { node: 'analytics', title: 'Uppföljning', text: 'Leverans och kundrespons mäts per kanal.' },
+    ],
+  },
+  price_compare: {
+    title: 'Kund i riskzonen', persona: 'Lars Eriksson',
+    summary: 'Jämförelsesignaler höjer churn-risken. Retentionserbjudandet tar över, det kommersiella NBO:t undertrycks och ett personligt mail går ut.',
+    nodes: ['web', 'nbo', 'nba', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'router', 'cdp', 'contracts', 'email', 'analytics', 'identity'],
+    flow: [
+      { node: 'web', title: 'Jämför elavtal', text: 'Kunden öppnar jämförelsesidan och tittar på flera avtal.' },
+      { node: 'signals', title: 'Jämförelsesignal', text: 'comparison_view registreras och väger tungt i churn-modellen.' },
+      { node: 'scoring', title: 'Churn-risk stiger', text: 'Risken går från 0,42 till 0,80.' },
+      { node: 'segments', title: 'Segment: churn_risk', text: 'Kunden flyttas till risksegmentet.' },
+      { node: 'decision', title: 'Retention, inte sälj', text: 'Grönt erbjudande exkluderas; retention blir rekommenderad åtgärd.' },
+      { node: 'router', title: 'Personligt mail', text: 'Ett retentionsmail går ut med erbjudande om genomgång av avtalet.' },
+      { node: 'analytics', title: 'Mätning', text: 'Klick och eventuell konvertering följs upp.' },
+    ],
+  },
+  green_interest: {
+    title: 'Går grönt', persona: 'Anders Petersson',
+    summary: 'Grönt intresse höjer benägenheten och byter erbjudandet till fossilfri rörlig el. Nyhetsbrevet blir en del av profilen och tystar NBA:t.',
+    nodes: ['web', 'nbo', 'nba', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'router', 'cdp', 'contracts', 'content', 'email', 'analytics', 'identity'],
+    flow: [
+      { node: 'web', title: 'Läser om fossilfri el', text: 'Besök på grön toppsida och avtalsjämförelse.' },
+      { node: 'signals', title: 'Gröna signaler', text: 'green_tariff_page_view och solar_page_view registreras.' },
+      { node: 'scoring', title: 'Grönbenägenhet', text: 'Profilen går till 0,80.' },
+      { node: 'segments', title: 'Segment: green_affinity_high', text: 'Profilen matchar grönt erbjudande.' },
+      { node: 'decision', title: 'Nytt NBO', text: 'Fossilfri rörlig el med fri månadsavgift vinner över standarderbjudandet.' },
+      { node: 'cdp', title: 'Nyhetsbrev sparas', text: 'Prenumerationen skrivs till profilen och nyhetsbrevs-NBA:t tas bort.' },
+      { node: 'router', title: 'Välkomstmail', text: 'Ett välkomstmail med tips om fossilfri el skickas.' },
+    ],
+  },
+  anon_smart: {
+    title: 'Smart targeting (okänd)', persona: 'Anonym besökare',
+    summary: 'Utan konto eller profil byggs en tillfällig beteendeprofil från cookien. Beslutet fattas i realtid och visas bara på webben.',
+    nodes: ['web', 'nbo', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'content', 'analytics', 'identity'],
+    flow: [
+      { node: 'web', title: 'Utforskar elbilsladdning', text: 'En okänd besökare öppnar /ev-charging.' },
+      { node: 'identity', title: 'Cookie, inte konto', text: 'Besökaren identifieras bara av en cookie — ingen kundprofil finns.' },
+      { node: 'signals', title: 'Beteendesignaler', text: 'Sidvisningar och klick samlas under den anonyma kakan.' },
+      { node: 'scoring', title: 'Realtidsscore', text: 'EV-benägenheten beräknas direkt från sessionens signaler.' },
+      { node: 'segments', title: 'Tillfälligt segment', text: 'Besökaren behandlas som ev_prospects i det aktuella beslutet.' },
+      { node: 'decision', title: 'Beslut utan profil', text: 'Beslutsmodulen väljer paketerbjudandet med stöd av katalog och innehåll.' },
+      { node: 'nbo', title: 'Personlig yta', text: 'Webben visar “Baserat på ditt beteende” — ingen inkorg eller utskick.' },
+    ],
+  },
+  anon_to_profile: {
+    title: 'Okänd besökare → blir kund', persona: 'Anders Petersson',
+    summary: 'Anonyma signaler knyts till en profil vid identifiering. Avtal, innehav och segment uppdateras och nya meddelanden går ut.',
+    nodes: ['web', 'inbox', 'email', 'push', 'nbo', 'nba', 'webInbox', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'router', 'cdp', 'contracts', 'content', 'analytics', 'identity'],
+    flow: [
+      { node: 'signals', title: 'Anonyma signaler', text: 'Besökarens EV-intresse samlas under cookien.' },
+      { node: 'identity', title: 'Identify', text: 'Vid inloggning knyts cookien till kundprofilen (Anders).' },
+      { node: 'cdp', title: 'Profilen berikas', text: 'Tidigare anonyma signaler flyttas över till profilen.' },
+      { node: 'contracts', title: 'Avtal registreras', text: 'Fast elpris läggs till som innehav och styr fortsatt suppression.' },
+      { node: 'decision', title: 'Nytt beslut', text: 'Scoring, segment och katalog ger Kvartspris + Smartladdning.' },
+      { node: 'router', title: 'Välkomstflöde', text: 'E-post, push och inkorg får välkomstmeddelanden.' },
+      { node: 'analytics', title: 'Mätning', text: 'Identifiering, beslut och konvertering loggas.' },
+    ],
+  },
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+const initialScores = () => Object.fromEntries(Object.entries(PERSONAS).map(([id, p]) => [id, { ...p.scores }]))
+const initialHoldings = () => Object.fromEntries(Object.entries(PERSONAS).map(([id, p]) => [id, [...p.holdings]]))
+
+const state = {
+  view: 'home',
+  customerId: 'eva',
+  loggedIn: true,
+  anonymous: false,
+  personalization: true,
+  holdings: initialHoldings(),
+  scores: initialScores(),
+  newsletter: Object.fromEntries(Object.keys(PERSONAS).map((id) => [id, false])),
+  outage: false,
+  active: null,          // { key, stepIdx }
+  messages: [],          // { customerId, scenarioKey, stepIndex, channel, subject, body, time }
+  personaMenu: false,
+  explain: false,
+  toast: null,           // web inbox notification after a step
+  archScenario: 'all',   // architecture view: 'all' or a scenario key
+  archNode: null,        // selected capability in the architecture diagram
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+const pct = (n) => Math.round(n * 100) + '%'
+const nowTime = () => new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
+const persona = () => (!state.customerId || state.anonymous) ? null : PERSONAS[state.customerId]
+const holdingsOf = (id) => state.holdings[id] ?? []
+const owns = (id, name) => holdingsOf(id).includes(name)
+
+function segmentsFor(id) {
+  if (!id) return []
+  const s = state.scores[id]
+  const list = []
+  if (s.ev >= 0.6) list.push(owns(id, 'Kvartspris + Smartladdning') ? 'ev owners' : 'ev prospects')
+  if (s.green >= 0.7) list.push('green affinity high')
+  if (s.churn >= 0.6) list.push('churn risk')
+  if (PERSONAS[id].usage >= 15000) list.push('heavy users')
+  if (s.ev < 0.2 && s.green >= 0.5) list.push('loyalty high')
+  return [...new Set(list)]
+}
+
+function activeScenario() {
+  return state.active ? SCENARIOS.find((s) => s.key === state.active.key) : null
+}
+
+// ── Architecture helpers ───────────────────────────────────────────────────
+const ARCH_NODE_ORDER = ARCH_LAYERS.flatMap((l) => l.nodes)
+const archLayerOf = (id) => ARCH_LAYERS.find((l) => l.nodes.includes(id))
+
+function archUsed(id) {
+  if (state.archScenario === 'all') return true
+  const s = ARCH_SCENARIOS[state.archScenario]
+  return !!s && s.nodes.includes(id)
+}
+
+function archScenariosUsing(id) {
+  return Object.entries(ARCH_SCENARIOS).filter(([, s]) => s.nodes.includes(id)).map(([key]) => key)
+}
+
+
+function completedMessages() {
+  if (!state.active) return []
+  return state.messages.filter(
+    (m) => m.scenarioKey === state.active.key && m.stepIndex < state.active.stepIdx,
+  )
+}
+
+// ── Decisioning (hardcoded NBO/NBA rules) ─────────────────────────────────
+function decide() {
+  const id = state.customerId
+  const isKnown = !!id && !state.anonymous
+
+  if (!isKnown) {
+    // Anonymous visitor: behavioural signals only
+    const anonScores = id ? state.scores[id] : null
+    if (anonScores && anonScores.ev >= 0.6) {
+      return { nbo: OFFERS.bundle, nba: null, rule: 'Anonym besökare med EV-signaler → paketet', segments: ['ev prospects'], anonymous: true }
+    }
+    return { nbo: null, nba: null, rule: 'Anonym besökare – inga signaler ännu', segments: [], anonymous: true }
+  }
+
+  const s = state.scores[id]
+  const segs = segmentsFor(id)
+
+  if (!state.personalization) {
+    return { nbo: null, nba: null, rule: 'Personalisering avstängd', segments: segs, fallback: true }
+  }
+
+  if (state.outage) {
+    return {
+      nbo: null,
+      nba: {
+        type: 'outage', headline: 'Strömavbrott i ditt område',
+        body: 'Vi arbetar på avbrottet i ditt lokala elnät. Beräknad återställning: ca 2 timmar.',
+        cta: 'Se driftstatus',
+      },
+      rule: 'Driftstörning → allt kommersiellt undertrycks',
+      segments: segs,
+    }
+  }
+
+  if (!state.loggedIn) {
+    return { nbo: null, nba: null, rule: 'Utloggad – generellt innehåll', segments: [], fallback: true }
+  }
+
+  if (s.churn >= 0.7) {
+    return {
+      nbo: null,
+      nba: {
+        type: 'retention', headline: 'Vi vill behålla dig som kund',
+        body: 'Innan du byter — låt oss titta på ditt pris. Vi slopar månadsavgiften i sex månader.',
+        cta: 'Se ditt erbjudande', url: 'tariffs',
+      },
+      rule: 'Churn-risk ≥ 0,7 → grönt erbjudande exkluderas, retention',
+      segments: segs,
+    }
+  }
+
+  if (s.ev >= 0.6 && !owns(id, 'Kvartspris + Smartladdning')) {
+    return { nbo: OFFERS.bundle, nba: state.newsletter[id] ? null : newsletterNba(), rule: 'EV-benägenhet ≥ 0,6 → Kvartspris + Smartladdning', segments: segs }
+  }
+
+  if (s.green >= 0.7 && !owns(id, 'Rörligt elpris')) {
+    return { nbo: OFFERS.green, nba: state.newsletter[id] ? null : newsletterNba(), rule: 'Grönbenägenhet ≥ 0,7 → fossilfri rörlig el', segments: segs }
+  }
+
+  // Persona defaults (what the demo DB serves for each profile)
+  const defaults = {
+    eva: { nbo: OFFERS.laddbox, nba: newsletterNba() },
+    karin: { nbo: OFFERS.varmepump, nba: newsletterNba() },
+    jonas: { nbo: OFFERS.bundle, nba: newsletterNba() },
+    lars: { nbo: OFFERS.retention, nba: null },
+    anders: { nbo: OFFERS.green, nba: newsletterNba() },
+  }
+  const d = defaults[id] ?? { nbo: null, nba: null }
+  const nba = state.newsletter[id] ? null : d.nba
+  return { nbo: d.nbo, nba, rule: 'Profilbaserat erbjudande', segments: segs }
+}
+
+function newsletterNba() {
+  return {
+    type: 'newsletter', headline: 'Få tips om fossilfri el',
+    body: 'Nyhetsbrev med tips om el, solceller och laddning — en gång i månaden.',
+    cta: 'Prenumerera',
+  }
+}
+
+// ── Web inbox (NBO / NBA / outage + scenario inbox messages) ──────────────
+function tariffName(t) {
+  return t === 'green' ? 'Rörligt elpris (fossilfri)' :
+    t === 'fast' ? 'Fast elpris' :
+    t === 'rörligt' ? 'Rörligt elpris' : 'Inget elavtal'
+}
+
+function inboxItems() {
+  const p = persona()
+  if (!p || !state.loggedIn) return []
+  const d = decide()
+  const items = []
+  if (state.outage) {
+    items.push({
+      type: 'outage', warn: true, icon: '⚡', label: 'Varning', color: '#B91C1C', bg: '#FEE2E2',
+      title: 'Strömavbrott i ditt område',
+      body: 'Din elleverans påverkas. Våra tekniker arbetar på att återställa strömmen i ditt lokala elnät.',
+      details: [
+        ['Status', 'Aktivt'],
+        ['Område', 'Lokalt elnät'],
+        ['Avtal', tariffName(p.tariff)],
+        ['Beräknad återställning', 'ca 2 timmar'],
+      ],
+      cta: 'Se driftstatus', url: 'home',
+    })
+  }
+  if (d.nbo) {
+    items.push({
+      type: 'nbo', icon: '🎁', label: 'Erbjudande', color: '#EA1B0A', bg: '#FEE9E7',
+      title: d.nbo.headline, body: d.nbo.body,
+      details: [
+        ['Erbjudande', d.nbo.name],
+        ['Produkt', d.nbo.product],
+        ['Värde', d.nbo.value],
+      ],
+      cta: d.nbo.cta, url: d.nbo.url,
+    })
+  }
+  if (d.nba && d.nba.type !== 'outage') {
+    items.push({
+      type: 'nba', icon: '💡', label: 'Åtgärd', color: '#1D4ED8', bg: '#DBEAFE',
+      title: d.nba.headline, body: d.nba.body,
+      cta: d.nba.cta, url: d.nba.url || '',
+    })
+  }
+  return items
+}
+
+function inboxCount() {
+  return inboxItems().length + completedMessages().filter((m) => m.channel === 'inbox').length
+}
+
+// ── Rendering: header ─────────────────────────────────────────────────────
+function renderSite() {
+  const p = persona()
+  const known = !!p && state.loggedIn
+  const firstName = p ? p.name.split(' ')[0] : ''
+
+  const nav = [
+    ['tariffs', 'Elavtal'], ['ev-charging', 'Elbilsladdning'], ['varmepump', 'Värmepumpar'], ['smarta-tjanster', 'Smarta tjänster'],
+  ].map(([v, l]) => `<a href="#" data-nav="${v}" class="${state.view === v ? 'active' : ''}">${l}</a>`).join('')
+
+  return `
+    <header class="site-header">
+      <div class="utility">
+        <div class="utility-inner">
+          <a href="#">Privat</a><a href="#">Företag</a><a href="#" data-nav="inbox">Mitt E.ON</a>
+        </div>
+      </div>
+      <div class="nav-inner">
+        <a href="#" class="logo" data-nav="home">e·on</a>
+        <nav class="main-nav">${nav}</nav>
+        ${known ? `
+          <button class="bell" data-nav="inbox" aria-label="Inkorg" title="Inkorg">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            ${inboxCount() ? `<span class="bell-badge">${inboxCount()}</span>` : ''}
+          </button>
+          <span class="user-pill">${esc(p.name)}</span><button class="login-btn ghost" data-action="toggle-login">Logga ut</button>`
+          : `<button class="login-btn" data-action="toggle-login">Logga in</button>`}
+      </div>
+    </header>
+    ${state.outage ? `
+      <div class="outage-banner">
+        <div class="page">
+          <div style="display:flex;gap:12px;align-items:flex-start;flex:1;min-width:220px">
+            <span style="font-size:22px;line-height:1">⚡</span>
+            <div>
+              <strong>Strömavbrott i ditt område</strong>
+              <span>${known ? esc(p.name.split(' ')[0]) + ', din elleverans påverkas. Vi arbetar på att återställa strömmen.' : 'Våra tekniker arbetar på att återställa strömmen i ditt lokala elnät.'}</span>
+            </div>
+          </div>
+          ${known ? `
+            <div class="outage-details">
+              <p><b>Status:</b> aktivt</p>
+              <p><b>Område:</b> Lokalt elnät</p>
+              <p><b>Avtal:</b> ${esc(tariffName(p.tariff))}</p>
+              <p><b>Beräknad återställning:</b> ca 2 timmar</p>
+              <button data-nav="inbox">Se detaljer i inkorgen →</button>
+            </div>`
+            : `<button data-action="toggle-login">Logga in för detaljer om ditt avtal</button>`}
+        </div>
+      </div>` : ''}
+    ${state.toast ? `
+      <div class="notif-bar">
+        <div class="notif-inner">
+          <span>📥</span>
+          <span><b>${esc(state.toast)}</b></span>
+          <span class="sp"></span>
+          <button data-nav="inbox">Visa inkorg</button>
+          <button data-action="dismiss-toast" aria-label="Stäng" style="color:#6B7280">✕</button>
+        </div>
+      </div>` : ''}
+    <main id="view">${renderView()}</main>
+    <footer class="site-footer">
+      <div class="page">
+        <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:space-between;align-items:center">
+          <div>
+            <div class="logo" style="font-style:italic;font-weight:900">e·on</div>
+            <div style="font-size:13px;margin-top:4px">Ren energi för ditt hem.</div>
+          </div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:13px">
+            ${nav}
+            <a href="#" data-nav="architecture">Arkitektur</a>
+          </div>
+        </div>
+        <p style="font-size:11px;margin-top:24px">© 2024 E.ON Nordics · Personaliseringsprototyp v2.0 · Arkitekturdemo. Inte ett riktigt kommersiellt erbjudande.</p>
+      </div>
+    </footer>`
+}
+
+// ── Rendering: views ──────────────────────────────────────────────────────
+function renderView() {
+  switch (state.view) {
+    case 'tariffs': return renderTariffs()
+    case 'ev-charging': return renderEvCharging()
+    case 'varmepump': return renderVarmepump()
+    case 'smarta-tjanster': return renderSmarta()
+    case 'inbox': return renderInbox()
+    case 'architecture': return renderArchitecture()
+    default: return renderHome()
+  }
+}
+
+function renderHero(title, lead, extra = '') {
+  return `
+    <section class="hero">
+      <div class="page">
+        ${title ? `<h1>${title}</h1>` : ''}
+        ${lead ? `<p class="lead">${lead}</p>` : ''}
+        ${extra}
+      </div>
+    </section>`
+}
+
+function renderOfferBlock() {
+  const d = decide()
+  if (!state.personalization) {
+    return `
+      ${renderHero('Energi för ditt hem.', 'Rena, smarta energilösningar — solceller, elbilsladdning och elavtal som passar dig.', `
+        <div class="hero-ctas"><button class="btn btn-white" data-nav="tariffs">Se elavtal</button><button class="btn btn-dark" data-nav="ev-charging">Utforska solceller</button></div>`)}
+      ${renderTariffSection()}
+      ${renderFeatures()}`
+  }
+  const showPersonal = state.anonymous ? !!d.nbo : state.loggedIn
+  if (!showPersonal) {
+    return `
+      ${renderHero('Energi för ditt hem.', 'Rena, smarta energilösningar — solceller, elbilsladdning och elavtal som passar dig.', `
+        <div class="hero-ctas"><button class="btn btn-white" data-nav="tariffs">Se elavtal</button><button class="btn btn-dark" data-nav="ev-charging">Utforska solceller</button></div>`)}
+      ${renderTariffSection()}
+      ${renderFeatures()}`
+  }
+  const nbo = d.nbo
+  return `
+    ${renderHero('', '', `
+      <div class="offer-card">
+        <div class="kicker"><span class="dot"></span> ${state.anonymous ? 'Baserat på ditt beteende' : 'Personligt för dig'}</div>
+        <div class="body">
+          <h2>${esc(nbo ? nbo.headline : 'Välkommen tillbaka, ' + (persona() ? persona().name.split(' ')[0] : '') + '!')}</h2>
+          <p>${esc(nbo ? nbo.body : 'Här hittar du dina avtal, din förbrukning och nästa steg.')}</p>
+          ${nbo ? `<div class="offer-chip"><span class="lbl">Exklusivt erbjudande</span><span><b>${esc(nbo.name)}</b> på ${esc(nbo.product)}</span><span class="val">· ${esc(nbo.value)}</span></div>` : ''}
+          ${nbo ? `<button class="btn btn-red" data-nav="${nbo.url}">${esc(nbo.cta)}</button>` : `<button class="btn btn-red" data-nav="tariffs">Se elavtal</button>`}
+          ${d.nba ? `
+            <div class="action-box ${d.nba.type === 'outage' ? 'outage' : ''}">
+              <div class="icon">${d.nba.type === 'outage' ? '⚡' : '💡'}</div>
+              <div style="flex:1;min-width:0">
+                <div class="kicker">${d.nba.type === 'outage' ? 'Driftinformation' : 'Rekommenderat för dig'}</div>
+                <h3>${esc(d.nba.headline)}</h3>
+                <p>${esc(d.nba.body)}</p>
+                <button data-action="nba-cta" data-url="${d.nba.url || ''}">${esc(d.nba.cta)}</button>
+              </div>
+            </div>` : ''}
+          <div class="why">
+            <button data-action="toggle-explain">Varför ser jag det här? ${state.explain ? '▲' : '▼'}</button>
+            ${state.explain ? `<div class="explain"><b>Segment:</b> ${d.segments.length ? d.segments.map(esc).join(', ') : '–'}<br><b>Regel:</b> ${esc(d.rule)}<br><b>Scoring:</b> ${Object.entries(state.scores[state.customerId] || {}).map(([k, v]) => `${modelLabel(k)} ${pct(v)}`).join(' · ')}</div>` : ''}
+          </div>
+        </div>
+      </div>`)}
+    ${renderTariffSection()}
+    ${renderFeatures()}`
+}
+
+function modelLabel(k) {
+  return { ev: 'EV-benägenhet', churn: 'Churn-risk', green: 'Grönbenägenhet', solar: 'Solintresse' }[k] || k
+}
+
+function nboSlug() {
+  const d = decide()
+  return d.nbo ? d.nbo.productSlug : null
+}
+
+function renderTariffSection() {
+  const slug = nboSlug()
+  const cards = TARIFFS.map((t) => {
+    const nbo = slug === t.slug
+    return `<div class="card ${nbo ? 'nbo' : ''}">
+      ${nbo ? '<span class="nbo-badge">⭐ Rekommenderas för dig</span>' : ''}
+      ${t.highlight ? `<span class="badge">${esc(t.highlight)}</span>` : ''}
+      <h3>${esc(t.name)}</h3>
+      <div class="price">${esc(t.price)}</div>
+      <p style="font-size:13px;color:#4B5563;line-height:1.6;margin:0 0 14px">${esc(t.desc)}</p>
+      <ul>${t.rows.slice(0, 3).map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
+      <div class="cta"><button data-nav="tariffs">Se ditt pris</button></div>
+    </div>`
+  }).join('')
+  return `<section class="section"><div class="page">
+    <h2>Våra elavtal</h2><p class="sub">Välj planen som passar din livsstil.</p>
+    <div class="cards">${cards}</div>
+  </div></section>`
+}
+
+function renderFeatures() {
+  const items = [
+    ['🌱', 'Fossilfri el', 'All el vi säljer är förnybar.'],
+    ['⚡', 'Smart laddning', 'Ladda när elen är som billigast.'],
+    ['🏠', 'Energi hemma', 'Solceller, batteri och värmepumpar.'],
+  ]
+  return `<section class="section alt"><div class="page"><div class="feature-strip">
+    ${items.map(([i, t, d]) => `<div><div class="icon">${i}</div><h3>${t}</h3><p>${d}</p></div>`).join('')}
+  </div></div></section>`
+}
+
+function renderHome() {
+  return renderOfferBlock()
+}
+
+function renderTariffs() {
+  const slug = nboSlug()
+  const head = TARIFFS.map((t) => `<th class="${slug === t.slug ? 'nbo' : ''}">
+    ${esc(t.name)}
+    ${t.highlight ? `<span class="hl">${esc(t.highlight)}</span>` : ''}
+    ${slug === t.slug ? '<span class="badge">⭐ Rekommenderas för dig</span>' : ''}
+  </th>`).join('')
+  const rows = ['Prismodell', 'Bindningstid', 'Månadsavgift', 'Passar'].map((label, i) => `
+    <tr><td class="fn">${label}</td>${TARIFFS.map((t) => `<td>${esc(t.rows[i])}</td>`).join('')}</tr>`).join('')
+  return `${renderHero('Elavtal', 'Jämför våra elavtal och hitta det som passar dig bäst.')}
+    <section class="section"><div class="page">
+      <h2>Jämför elavtal</h2><p class="sub">Samma villkor för alla — välj det som passar din vardag.</p>
+      <div class="matrix-wrap"><table class="matrix"><thead><tr><th class="fn">Funktion</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+    </div></section>`
+}
+
+function renderEvCharging() {
+  const slug = nboSlug()
+  const cards = EV_PRODUCTS.map((p) => {
+    const nbo = slug === p.slug
+    return `<div class="card ${nbo ? 'nbo' : ''}">
+      ${nbo ? '<span class="nbo-badge">⭐ Rekommenderas för dig</span>' : ''}
+      <span class="badge">${esc(p.badge)}</span>
+      <h3>${esc(p.name)}</h3>
+      <div class="price">${esc(p.price)}</div>
+      <ul>${p.features.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
+      <div class="cta"><button data-nav="ev-charging">Läs mer</button></div>
+    </div>`
+  }).join('')
+  return `${renderHero('Elbilsladdning', 'Ladda hemma — smart, säkert och till lägsta möjliga pris.')}
+    <section class="section"><div class="page">
+      <h2>Laddboxar och tjänster</h2><p class="sub">Välj laddbox — vi hjälper dig hela vägen.</p>
+      <div class="cards">${cards}</div>
+    </div></section>`
+}
+
+function renderVarmepump() {
+  const slug = nboSlug()
+  const nbo = slug === 'luftvarmepump'
+  return `${renderHero('Värmepumpar', 'Sänk din uppvärmningskostnad med en luftvärmepump.')}
+    <section class="section"><div class="page">
+      <h2>Luftvärmepump</h2><p class="sub">Energieffektiv uppvärmning året om.</p>
+      <div class="cards">
+        <div class="card ${nbo ? 'nbo' : ''}">
+          ${nbo ? '<span class="nbo-badge">⭐ Rekommenderas för dig</span>' : ''}
+          <span class="badge">Upp till 2 000 kr i rabatt</span>
+          <h3>Luftvärmepump</h3><div class="price">Från 18 199 kr</div>
+          <ul><li>Installation av behörig installatör</li><li>Upp till 2 000 kr i rabatt</li><li>Passar de flesta villor</li></ul>
+          <div class="cta"><button data-nav="varmepump">Boka rådgivning</button></div>
+        </div>
+      </div>
+    </div></section>`
+}
+
+function renderSmarta() {
+  return `${renderHero('Smarta tjänster', 'Få koll på förbrukningen och styr energin hemma.')}
+    <section class="section"><div class="page">
+      <h2>Smarta tjänster</h2><p class="sub">Enkla verktyg som gör hemmet smartare.</p>
+      <div class="cards">
+        <div class="card"><h3>Smart värmestyrning</h3><div class="price">Kostnadsfritt</div><ul><li>Styr värmen efter elpris</li><li>Spara energi automatiskt</li></ul><div class="cta"><button data-nav="smarta-tjanster">Aktivera</button></div></div>
+        <div class="card"><h3>Energikoll</h3><div class="price">Kostnadsfritt</div><ul><li>Se förbrukning per timme</li><li>Få larm vid avvikelser</li></ul><div class="cta"><button data-nav="smarta-tjanster">Läs mer</button></div></div>
+      </div>
+    </div></section>`
+}
+
+function renderInbox() {
+  const p = persona()
+  if (!p) {
+    return `${renderHero('Inkorg', 'Dina meddelanden och erbjudanden')}
+      <section class="section"><div class="page" style="max-width:52rem">
+        <div class="inbox-card" style="align-items:center">
+          <div class="inbox-icon" style="background:#F3F4F6">🔒</div>
+          <div>
+            <h3>Välj en persona</h3>
+            <p>Inkorgen visar personliga erbjudanden, åtgärder och meddelanden. Välj en persona i persona-baren för att öppna den.</p>
+          </div>
+        </div>
+      </div></section>`
+  }
+  if (!state.loggedIn) {
+    return `${renderHero('Inkorg', 'Dina meddelanden och erbjudanden')}
+      <section class="section"><div class="page" style="max-width:52rem">
+        <div class="inbox-card" style="align-items:center">
+          <div class="inbox-icon" style="background:#F3F4F6">🔒</div>
+          <div style="flex:1">
+            <h3>Logga in för att se din inkorg</h3>
+            <p>Här samlar vi dina avtal, fakturor och viktiga meddelanden — samt erbjudanden som är relevanta för dig.</p>
+          </div>
+          <button class="inbox-cta" data-action="toggle-login">Logga in</button>
+        </div>
+      </div></section>`
+  }
+
+  const items = inboxItems()
+  const msgs = completedMessages().filter((m) => m.channel === 'inbox')
+  const total = items.length + msgs.length
+
+  const itemCards = items.map((it) => `
+    <div class="inbox-card ${it.warn ? 'warn' : ''}">
+      <div class="inbox-icon" style="background:${it.bg}">${it.icon}</div>
+      <div style="flex:1;min-width:0">
+        <span class="inbox-cat" style="background:${it.bg};color:${it.color}">${it.label}</span>
+        <h3>${esc(it.title)}</h3>
+        <p>${esc(it.body)}</p>
+        ${it.details ? `<div class="detail-grid">${it.details.map(([k, v]) => `<div><b>${esc(k)}</b><span>${esc(v)}</span></div>`).join('')}</div>` : ''}
+        ${it.cta ? `<button class="inbox-cta" data-nav="${esc(it.url || 'home')}">${esc(it.cta)}</button>` : ''}
+      </div>
+    </div>`).join('')
+
+  const msgCards = msgs.map((m) => `
+    <div class="inbox-card">
+      <div class="inbox-icon" style="background:#E7F0FB">📥</div>
+      <div style="flex:1;min-width:0">
+        <span class="inbox-cat" style="background:#E7F0FB;color:#2563EB">Meddelande</span>
+        <h3>${esc(m.subject || 'E.ON')}</h3>
+        <p>${esc(m.body)}</p>
+        <div class="inbox-meta">${esc(scenarioShort(m.scenarioKey))} · steg ${m.stepIndex + 1} · ${m.time}</div>
+      </div>
+    </div>`).join('')
+
+  return `${renderHero('Inkorg', 'Meddelanden och erbjudanden anpassade för dig')}
+    <section class="section"><div class="page" style="max-width:52rem">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <h2 style="font-size:22px;margin:0">Dina meddelanden</h2>
+        <span style="font-size:12px;color:#6B7280">${total} ${total === 1 ? 'meddelande' : 'meddelanden'} · ${esc(p.name.split(' ')[0])}</span>
+      </div>
+      <div class="inbox-list" style="margin-top:18px">
+        ${total ? itemCards + msgCards : `
+          <div class="inbox-card" style="align-items:center">
+            <div class="inbox-icon" style="background:#F3F4F6">📭</div>
+            <div>
+              <h3>Allt klart</h3>
+              <p>Här hamnar dina personliga erbjudanden, åtgärder och meddelanden när vi har något viktigt att säga.</p>
+            </div>
+          </div>`}
+      </div>
+    </div></section>`
+}
+
+// ── Rendering: architecture ───────────────────────────────────────────────
+function archNodeButton(id) {
+  const n = ARCH_NODES[id]
+  const layer = archLayerOf(id)
+  const active = state.archScenario !== 'all' && archUsed(id)
+  const selected = state.archNode === id
+  const marked = active
+  return `<button class="arch-node ${active ? 'active' : ''} ${selected ? 'sel' : ''}"
+      style="--accent:${layer.color};--accent-soft:${layer.soft}"
+      data-arch-node="${id}" title="${esc(n.desc)}">
+      ${marked ? '<span class="mark"></span>' : ''}
+      <span class="ico">${n.icon}</span>
+      <b>${esc(n.label)}</b>
+      <span>${esc(n.sys)}</span>
+    </button>`
+}
+
+function archFlowRow(i) {
+  const labels = [
+    'klick & sidvisningar <b>↓</b> &nbsp;·&nbsp; innehåll & erbjudanden <b>↑</b>',
+    'beslut & åtgärder <b>↓</b> &nbsp;·&nbsp; profil & kontext <b>↑</b>',
+    'signaler <b>↓</b> &nbsp;·&nbsp; kunddata & status <b>↑</b>',
+  ]
+  return `<div class="arch-flow">${labels[i - 1]}</div>`
+}
+
+function archNodeInfo() {
+  const id = state.archNode
+  if (!id || !ARCH_NODES[id]) return ''
+  const n = ARCH_NODES[id]
+  const layer = archLayerOf(id)
+  const scenarios = archScenariosUsing(id)
+  return `<div class="arch-nodeinfo">
+    <div class="ico">${n.icon}</div>
+    <div style="flex:1;min-width:0">
+      <h3>${esc(n.label)} <span style="font-weight:400;color:#9CA3AF;font-size:11px">· ${esc(layer.title)}</span></h3>
+      <p><b>${esc(n.sys)}.</b> ${esc(n.desc)}</p>
+      <div class="used">
+        ${scenarios.length
+          ? scenarios.map((k) => `<button data-arch-scenario="${k}">${esc(ARCH_SCENARIOS[k].title)}</button>`).join('')
+          : '<span style="font-size:10px;color:#9CA3AF">Ingår inte i något kundscenario — används för att konfigurera plattformen.</span>'}
+      </div>
+    </div>
+    <button data-arch-close="1" aria-label="Stäng" style="border:0;background:none;color:#9CA3AF;font-size:15px">✕</button>
+  </div>`
+}
+
+function archScenarioCards() {
+  return `<div class="arch-detail-head"><div><h2>Scenarier</h2><p>Välj ett scenario för att se vilka förmågor som används och i vilken ordning de spelar in.</p></div></div>
+    <div class="arch-scenarios">
+      ${SCENARIOS.map((s) => {
+        const a = ARCH_SCENARIOS[s.key]
+        return `<div class="arch-scenario" data-arch-scenario="${s.key}" role="button" tabindex="0">
+          <span class="tag">${esc(a.persona)}</span>
+          <h3>${esc(a.title)}</h3>
+          <p>${esc(a.summary)}</p>
+          <span class="meta">${a.nodes.length} förmågor · ${a.flow.length} steg i flödet</span>
+        </div>`
+      }).join('')}
+    </div>`
+}
+
+function archScenarioDetail(key, scene) {
+  return `<div class="arch-detail-head">
+      <div>
+        <h2>${esc(scene.title)}</h2>
+        <p>${esc(scene.summary)}</p>
+      </div>
+      <span class="arch-count">${scene.nodes.length} förmågor · ${scene.flow.length} steg</span>
+    </div>
+    <div class="arch-flow-list">
+      ${scene.flow.map((st, i) => `
+        <div class="arch-step">
+          <div class="n">${i + 1}</div>
+          <div>
+            <b>${esc(st.title)}</b>
+            <span>${esc(st.text)}</span>
+            <div class="sys">${ARCH_NODES[st.node].icon} ${esc(ARCH_NODES[st.node].label)} · ${esc(ARCH_NODES[st.node].sys)}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="arch-used">
+      ${ARCH_NODE_ORDER.filter((id) => scene.nodes.includes(id)).map((id) => `<span class="chip">${ARCH_NODES[id].icon} ${esc(ARCH_NODES[id].label)}</span>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <button class="arch-tab" data-arch-scenario="all">← Alla scenarier</button>
+      <button class="inbox-cta" data-start="${key}">Starta scenariot</button>
+    </div>`
+}
+
+function archMatrix() {
+  const keys = SCENARIOS.map((s) => s.key)
+  const short = { ev_journey: 'Elbil', outage: 'Avbrott', price_compare: 'Riskzon', green_interest: 'Grönt', anon_smart: 'Anonym', anon_to_profile: 'Anon→kund' }
+  const head = `<tr><th>Förmåga</th>${SCENARIOS.map((s) => `<th title="${esc(s.title)}">${esc(short[s.key])}</th>`).join('')}</tr>`
+  const body = ARCH_LAYERS.map((layer) => {
+    const rows = layer.nodes.filter((id) => id !== 'admin')
+    if (!rows.length) return ''
+    return `<tr class="group"><td colspan="${keys.length + 1}">${esc(layer.title)}</td></tr>` +
+      rows.map((id) => {
+        const n = ARCH_NODES[id]
+        return `<tr>
+          <td>${n.icon} ${esc(n.label)}</td>
+          ${keys.map((k) => {
+            const on = ARCH_SCENARIOS[k].nodes.includes(id)
+            return `<td class="${on ? 'on' : ''}">${on ? '<span class="yes"></span>' : '<span class="no">·</span>'}</td>`
+          }).join('')}
+        </tr>`
+      }).join('')
+  }).join('')
+  return `<table class="arch-matrix"><thead>${head}</thead><tbody>${body}</tbody></table>`
+}
+
+function renderArchitecture() {
+  const selected = state.archScenario
+  const scene = selected !== 'all' ? ARCH_SCENARIOS[selected] : null
+  return `
+    <section class="arch-hero">
+      <div class="page">
+        <div class="kicker"><span class="dot"></span> Arkitektur · v2.0</div>
+        <h1>Så hänger det ihop</h1>
+        <p>Förmågorna och systemen bakom de sex demo-scenarierna — från kundmöte och signalintag till beslut, katalog och utgående kanaler. Välj ett scenario för att se vad som spelar in.</p>
+        <div class="arch-stats">
+          <span>6 scenarier</span>
+          <span>${ARCH_NODE_ORDER.length} förmågor</span>
+          <span>4 lager</span>
+          <span>1 beslutsmodul</span>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="page">
+        <div class="arch-toolbar">
+          <span class="lbl">Markera scenario</span>
+          <button class="arch-tab ${selected === 'all' ? 'on' : ''}" data-arch-scenario="all">Alla</button>
+          ${SCENARIOS.map((s) => `<button class="arch-tab ${selected === s.key ? 'on' : ''}" data-arch-scenario="${s.key}">${esc(s.title)}</button>`).join('')}
+          <span class="spacer"></span>
+          <button class="arch-tab" data-nav="home">← Till webben</button>
+        </div>
+        <div class="arch-legend">
+          ${ARCH_LAYERS.map((l) => `<span><i style="background:${l.color}"></i>${esc(l.title)}</span>`).join('')}
+          <span style="margin-left:auto">${scene ? `Visar <b style="color:#111827">${esc(scene.title)}</b> · ${scene.nodes.length} av ${ARCH_NODE_ORDER.length} förmågor` : 'Välj ett scenario för att markera vad som används'}</span>
+        </div>
+        ${archNodeInfo()}
+        <div class="arch-wrap ${scene ? 'has-selection' : ''}">
+          <div class="arch-layers">
+            ${ARCH_LAYERS.map((layer, i) => `
+              ${i > 0 ? archFlowRow(i) : ''}
+              <div class="arch-layer">
+                <div class="arch-layer-head">
+                  <div class="lt"><i style="background:${layer.color}"></i><b>${esc(layer.title)}</b></div>
+                  <span>${esc(layer.hint)}</span>
+                </div>
+                <div class="arch-nodes">${layer.nodes.map(archNodeButton).join('')}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="arch-detail">
+          ${scene ? archScenarioDetail(selected, scene) : archScenarioCards()}
+        </div>
+        <h2 style="font-size:22px;margin:38px 0 6px">Förmågor per scenario</h2>
+        <p style="color:#6B7280;font-size:13px;margin:0 0 14px">Samma underlag som diagrammet — bra för att se var ett scenario gör avtryck.</p>
+        <div class="arch-tablewrap">${archMatrix()}</div>
+        <div class="arch-note"><b>Om demon:</b> i den här fristående versionen är CDP, scoring, beslutsmodul och meddelanderouter hårdkodade i JavaScript. I Next.js-versionen är de riktiga API:er mot Prisma/SQLite. Backoffice (admin) ingår i plattformen men är inte en del av kundscenarierna.</div>
+      </div>
+    </section>`
+}
+
+
+// ── Rendering: channel rail ───────────────────────────────────────────────
+const CHANNELS = [
+  { key: 'inbox', title: 'Inkorg', caption: 'Meddelanden på eon.se', icon: '📥', bg: '#E7F0FB', headerBg: '#FFFFFF', accent: '#2563EB', light: true },
+  { key: 'sms', title: 'SMS', caption: 'SMS till mobilen', icon: '💬', bg: '#0F172A', headerBg: 'rgba(255,255,255,0.06)', accent: '#34D399', light: false },
+  { key: 'email', title: 'E-post', caption: 'E-post till inkorgen', icon: '✉️', bg: '#FFF9EC', headerBg: '#FFFFFF', accent: '#F59E0B', light: true },
+  { key: 'push', title: 'Push', caption: 'Notiser i appen', icon: '🔔', bg: '#F6F2FF', headerBg: '#FFFFFF', accent: '#C026D3', light: true },
+]
+
+function renderRail() {
+  const msgs = completedMessages()
+  const total = msgs.length
+  const key = state.customerId || (state.anonymous ? 'anon' : '')
+  let body
+  if (!key) {
+    body = emptyRail('Välj en persona (eller kör en anonym demo) så visas alla kanaler här.')
+  } else if (total === 0) {
+    body = `<p class="rail-intro">Inga meddelanden ännu. Välj ett scenario i persona-baren — bara det scenariots meddelanden visas här, steg för steg.</p>
+      ${emptyRail('Inkorg, SMS, e-post och push fylls här tillsammans — men bara för det scenario som är aktivt.')}`
+  } else {
+    const panels = CHANNELS.map((c, i) => {
+      const list = msgs.filter((m) => m.channel === c.key)
+      return `<div class="${i > 0 ? 'divider' : ''}">${panel(c, list)}</div>`
+    }).join('')
+    body = `<p class="rail-intro">${total} meddelanden ut till kunden, visas på alla kanaler samtidigt.</p>${panels}`
+  }
+  return `
+    <div class="rail-head">
+      <p class="kicker">Utgående kanaler</p>
+      <h2>Så når vi kunden</h2>
+      <p>Inkorg · SMS · E-post · Push</p>
+    </div>
+    <div class="rail-body">${body}</div>`
+}
+
+function emptyRail(hint) {
+  return `<div class="rail-empty"><div class="icon">📭</div><p>${hint}</p></div>`
+}
+
+function panel(c, list) {
+  const primary = c.light ? '#1A1A1A' : '#FFFFFF'
+  const muted = c.light ? 'rgba(26,26,26,.55)' : 'rgba(255,255,255,.55)'
+  const divider = c.light ? 'rgba(0,0,0,.07)' : 'rgba(255,255,255,.08)'
+  const count = `<span class="count" style="background:${c.accent}1c;color:${c.accent}">${list.length}</span>`
+  const head = `<div class="panel-head" style="background:${c.headerBg};border-bottom-color:${c.accent}">
+      <span class="pic" style="background:${c.accent}22">${c.icon}</span>
+      <div class="t"><b style="color:${primary}">${c.title}</b><span style="color:${muted}">${c.caption}</span></div>
+      ${count}
+    </div>`
+  let inner
+  if (!list.length) {
+    inner = `<p class="panel-body none" style="color:${muted}">Inga meddelanden på den här kanalen ännu.</p>`
+  } else if (c.key === 'sms') {
+    inner = `<div class="panel-body">${list.map((m) => `
+      <div class="sms-row"><div class="sms-bubble">${esc(m.body)}<span class="meta">${m.time} · ${scenarioShort(m.scenarioKey)}</span></div></div>`).join('')}</div>`
+  } else {
+    inner = `<div class="panel-body">${list.map((m, i) => `
+      <div class="msg" style="border-bottom:${i < list.length - 1 ? '1px solid ' + divider : 'none'}">
+        <div class="top"><b style="color:${primary}">${esc(m.subject || 'E.ON')}</b><span>${m.time}</span></div>
+        <p style="color:${c.light ? 'rgba(26,26,26,.65)' : 'rgba(255,255,255,.7)'}">${esc(m.body)}</p>
+        <p class="meta">${scenarioShort(m.scenarioKey)} · ${m.stepIndex + 1}</p>
+      </div>`).join('')}</div>`
+  }
+  return `<section class="panel" style="background:${c.bg};border-color:${c.light ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)'}">${head}${inner}</section>`
+}
+
+function scenarioShort(key) {
+  return { ev_journey: 'Elbilsresan', outage: 'Strömavbrott', price_compare: 'Riskzon', green_interest: 'Grönt', anon_smart: 'Anonym', anon_to_profile: 'Anonym → kund' }[key] || key
+}
+
+// ── Rendering: dev tools ──────────────────────────────────────────────────
+function renderScenarioBar() {
+  const scene = activeScenario()
+  if (!scene) {
+    return `<div class="scenario-main"><span class="scenario-chip">SCENARIER</span>
+      ${SCENARIOS.map((s) => `<button class="pill" data-start="${s.key}">${esc(s.title)}</button>`).join('')}
+      <span class="spacer"></span>
+      <button class="arch-link" data-action="open-architecture">🧩 Arkitektur</button>
+    </div>`
+  }
+  const total = scene.steps.length
+  const idx = state.active.stepIdx
+  const done = idx >= total
+  const step = !done ? scene.steps[idx] : null
+  const lastNotes = idx > 0 ? scene.steps[idx - 1].notes : []
+  return `<div class="scenario-main">
+      <span class="scenario-chip">SCENARIER</span>
+      <span class="scen-title">${esc(scene.title)} · ${Math.min(idx, total)}/${total}</span>
+      ${idx > 0 ? `<button class="ghost-btn" data-action="prev-step">◀ back</button>` : ''}
+      ${!done
+        ? `<button class="step-btn" data-action="next-step">▶ ${esc(step.label)}</button>`
+        : `<span style="color:#4ADE80;font-weight:700">Klart</span>`}
+      <button class="arch-link" data-action="open-architecture">🧩 Arkitektur</button>
+      <button class="icon-btn" data-action="exit-scenario" title="Avsluta scenariot">✕</button>
+    </div>
+    ${lastNotes.length ? `<p class="scenario-notes"><span class="check">✓</span> ${lastNotes.map(esc).join(' · ')}</p>` : ''}`
+}
+
+function renderPersonaBar() {
+  const p = persona()
+  const isAnon = state.anonymous
+  const display = isAnon ? 'Anonym besökare' : (p ? p.name : 'Ingen persona')
+  const meta = p && !isAnon
+    ? `${tariffLabel(p.tariff)} · ${p.usage.toLocaleString('sv-SE')} kWh/år · ${p.housing} · ${p.postcode}`
+    : isAnon ? 'Endast cookie · inga profiluppgifter' : ''
+  const scores = p && !isAnon ? state.scores[p.id] : null
+  const segs = p && !isAnon ? segmentsFor(p.id) : []
+  const products = p && !isAnon ? holdingsOf(p.id) : []
+
+  return `
+    <div class="persona-row">
+      <div class="persona-menu-wrap">
+        <button class="persona-chip" data-action="toggle-persona-menu">${esc(isAnon ? 'Anonym' : (p ? p.name.split(' ')[0] : 'Välj'))} ▾</button>
+        ${state.personaMenu ? `<div class="persona-menu">
+          ${Object.values(PERSONAS).map((x) => `<button data-select="${x.id}">${esc(x.name)}<span>${tariffLabel(x.tariff)} · ${x.usage.toLocaleString('sv-SE')} kWh/år · ${x.housing}</span></button>`).join('')}
+          <button data-select-anon>Anonym besökare<span>Endast cookie · inga profiluppgifter</span></button>
+        </div>` : ''}
+      </div>
+      <span class="persona-name">${esc(display)}</span>
+      ${meta ? `<span class="persona-meta">${esc(meta)}</span>` : ''}
+      ${!isAnon ? `<button class="login-pill ${state.loggedIn && state.customerId ? 'on' : 'off'}" data-action="toggle-login">${state.loggedIn && state.customerId ? 'Logga ut' : 'Logga in'}</button>` : ''}
+      <span class="spacer"></span>
+      <span class="toggle-wrap">Personalisering <button class="toggle ${state.personalization ? '' : 'off'}" data-action="toggle-personalization" aria-label="Personalisering"></button> <b style="color:#EA1B0A">${state.personalization ? 'ON' : 'OFF'}</b></span>
+      <button class="reset-btn" data-action="reset">Återställ</button>
+    </div>
+    ${scores ? `<div class="persona-detail">
+      <div>
+        <div class="model-grid">
+          ${model('EV', scores.ev, '#3B82F6')}
+          ${model('Churn', scores.churn, '#EA1B0A')}
+          ${model('Green', scores.green, '#22C55E')}
+          ${model('Solar', scores.solar, '#F59E0B')}
+        </div>
+      </div>
+      <span class="spacer"></span>
+      <div class="chips">${segs.map((s) => `<span class="chip">${esc(s)}</span>`).join('')}</div>
+      <div class="chips">${products.map((s) => `<span class="chip prod">${esc(s)}</span>`).join('')}</div>
+    </div>` : ''}`
+}
+
+function model(label, value, color) {
+  return `<div class="model"><span style="width:44px">${label}</span><span class="track"><span class="fill" style="width:${pct(value)};background:${color}"></span></span><b>${pct(value)}</b></div>`
+}
+
+// ── Render root ───────────────────────────────────────────────────────────
+function render(opts = {}) {
+  const y = opts.keepScroll ? window.scrollY : 0
+  document.getElementById('site').innerHTML = renderSite()
+  document.getElementById('rail').innerHTML = renderRail()
+  document.getElementById('scenarioBar').innerHTML = renderScenarioBar()
+  document.getElementById('personaBar').innerHTML = renderPersonaBar()
+  measure()
+  window.requestAnimationFrame(() => { window.scrollTo(0, y) })
+  if (opts.top) window.scrollTo(0, 0)
+}
+
+function measure() {
+  const rail = document.getElementById('rail')
+  const bar = document.getElementById('scenarioBar')
+  if (window.innerWidth >= 1024) {
+    const top = bar.getBoundingClientRect().top
+    rail.style.height = Math.max(300, Math.round(top - 8)) + 'px'
+  } else {
+    rail.style.height = ''
+  }
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────
+function startScenario(key) {
+  const scene = SCENARIOS.find((s) => s.key === key)
+  if (!scene) return
+  state.active = { key, stepIdx: 0 }
+  state.messages = state.messages.filter((m) => m.scenarioKey !== key)
+  state.toast = null
+  state.view = 'home'
+  state.explain = false
+  if (scene.anonymous) {
+    state.anonymous = true
+    state.customerId = scene.persona || 'anon'
+    state.scores[state.customerId] = { ev: 0, churn: 0, green: 0, solar: 0 }
+  } else if (scene.persona) {
+    selectPersona(scene.persona, true)
+    state.active = { key, stepIdx: 0 }
+  }
+  render({ top: true })
+}
+
+function applyStep() {
+  const scene = activeScenario()
+  if (!scene || !state.active) return
+  const i = state.active.stepIdx
+  const step = scene.steps[i]
+  if (!step) return
+  const a = step.apply || {}
+
+  if (a.anonymous) {
+    state.anonymous = true
+    state.loggedIn = false
+  }
+  if (a.identify) {
+    state.anonymous = false
+    state.customerId = a.identify
+    state.loggedIn = true
+    state.holdings[a.identify] = [...PERSONAS[a.identify].holdings]
+  }
+  if (typeof a.login === 'boolean') state.loggedIn = a.login
+  if (typeof a.outage === 'boolean') state.outage = a.outage
+  if (a.newsletter && state.customerId) state.newsletter[state.customerId] = true
+  if (a.scores) {
+    const id = state.customerId || 'anon'
+    state.scores[id] = {
+      ...(state.scores[id] || { ev: 0, churn: 0, green: 0, solar: 0 }),
+      ...a.scores,
+    }
+  }
+  if (a.holding && state.customerId) {
+    if (!state.holdings[state.customerId].includes(a.holding)) {
+      state.holdings[state.customerId] = [...state.holdings[state.customerId], a.holding]
+    }
+  }
+  if (step.messages) {
+    step.messages.forEach((m) => {
+      const exists = state.messages.some((x) => x.scenarioKey === scene.key && x.stepIndex === i && x.channel === m.channel)
+      if (!exists) {
+        state.messages.push({
+          customerId: state.customerId, scenarioKey: scene.key, stepIndex: i,
+          channel: m.channel, subject: m.subject || null, body: m.body, time: nowTime(),
+        })
+      }
+    })
+    if (step.messages.some((m) => m.channel === 'inbox') && state.loggedIn && step.page !== 'inbox') {
+      const first = persona() ? persona().name.split(' ')[0] + ', du' : 'Du'
+      state.toast = `${first} har fått ett nytt meddelande i din inkorg.`
+    }
+  }
+  state.active.stepIdx = i + 1
+  if (step.page) state.view = step.page
+  render({ top: true })
+}
+
+function prevStep() {
+  if (!state.active) return
+  state.active.stepIdx = Math.max(0, state.active.stepIdx - 1)
+  const scene = activeScenario()
+  const prev = scene.steps[state.active.stepIdx - 1]
+  if (prev && prev.page) state.view = prev.page
+  render({ top: true })
+}
+
+function exitScenario() {
+  state.active = null
+  state.explain = false
+  render()
+}
+
+function selectPersona(id, keepActive = false) {
+  state.customerId = id
+  state.anonymous = false
+  state.loggedIn = true
+  state.personaMenu = false
+  state.scores[id] = { ...PERSONAS[id].scores }
+  state.holdings[id] = [...PERSONAS[id].holdings]
+  state.newsletter[id] = false
+  state.outage = false
+  if (!keepActive) state.active = null
+  state.view = 'home'
+  state.explain = false
+  if (!keepActive) render()
+}
+
+function resetAll() {
+  state.view = 'home'
+  state.customerId = 'eva'
+  state.loggedIn = true
+  state.anonymous = false
+  state.personalization = true
+  state.holdings = initialHoldings()
+  state.scores = initialScores()
+  state.newsletter = Object.fromEntries(Object.keys(PERSONAS).map((id) => [id, false]))
+  state.outage = false
+  state.active = null
+  state.messages = []
+  state.personaMenu = false
+  state.explain = false
+  state.toast = null
+  state.archScenario = 'all'
+  state.archNode = null
+  render({ top: true })
+}
+
+// ── Event delegation ──────────────────────────────────────────────────────
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-action],[data-nav],[data-start],[data-select],[data-select-anon],[data-arch-scenario],[data-arch-node],[data-arch-close]')
+  if (!el) return
+
+  if (el.dataset.start !== undefined) { startScenario(el.dataset.start); return }
+  if (el.dataset.nav !== undefined) { e.preventDefault(); state.view = el.dataset.nav; state.personaMenu = false; state.toast = null; render({ top: true }); return }
+  if (el.dataset.select !== undefined) { selectPersona(el.dataset.select); return }
+  if (el.dataset.archScenario !== undefined) {
+    state.archScenario = el.dataset.archScenario
+    state.archNode = null
+    state.view = 'architecture'
+    state.personaMenu = false
+    render({ keepScroll: true })
+    return
+  }
+  if (el.dataset.archNode !== undefined) {
+    state.archNode = state.archNode === el.dataset.archNode ? null : el.dataset.archNode
+    render({ keepScroll: true })
+    if (state.archNode) {
+      window.requestAnimationFrame(() => {
+        const info = document.querySelector('.arch-nodeinfo')
+        if (info) info.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      })
+    }
+    return
+  }
+  if (el.dataset.archClose !== undefined) {
+    state.archNode = null
+    render({ keepScroll: true })
+    return
+  }
+  if (el.dataset.selectAnon !== undefined) {
+    state.anonymous = true
+    state.customerId = null
+    state.loggedIn = false
+    state.personaMenu = false
+    state.active = null
+    state.view = 'home'
+    render({ top: true })
+    return
+  }
+
+  switch (el.dataset.action) {
+    case 'toggle-persona-menu': state.personaMenu = !state.personaMenu; render({ keepScroll: true }); break
+    case 'toggle-login':
+      if (state.anonymous) return
+      state.loggedIn = !state.loggedIn
+      render({ keepScroll: true })
+      break
+    case 'toggle-personalization': state.personalization = !state.personalization; render({ keepScroll: true }); break
+    case 'toggle-explain': state.explain = !state.explain; render({ keepScroll: true }); break
+    case 'next-step': applyStep(); break
+    case 'prev-step': prevStep(); break
+    case 'exit-scenario': exitScenario(); break
+    case 'open-architecture':
+      state.view = 'architecture'
+      state.archScenario = state.active ? state.active.key : 'all'
+      state.archNode = null
+      state.toast = null
+      state.personaMenu = false
+      render({ top: true })
+      break
+    case 'dismiss-toast': state.toast = null; render({ keepScroll: true }); break
+    case 'reset': resetAll(); break
+    case 'nba-cta': {
+      if (el.dataset.url) { state.view = el.dataset.url; render({ top: true }) }
+      break
+    }
+  }
+})
+
+window.addEventListener('resize', measure)
+window.addEventListener('scroll', () => { /* fixed bars; rail stays put */ }, { passive: true })
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+render({ top: true })
+</script>
+</body>
+</html>
