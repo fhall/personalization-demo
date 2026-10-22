@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   Hall Energy personalisation — stand-alone demo
-  Version: 2.1.0 (rebrand + referensarkitektur)
+  Version: 2.3.0 (mätdata, disaggregation & scenarios)
   Single file · no server · no dependencies · no network calls
   Previous releases archived in versions/
 -->
@@ -219,7 +219,7 @@
   .step-btn { background: var(--red); color: #fff; border: 0; border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
   .ghost-btn { background: rgba(255,255,255,.1); color: rgba(255,255,255,.75); border: 0; border-radius: 999px; padding: 4px 10px; font-size: 12px; }
   .icon-btn { background: none; border: 0; color: rgba(255,255,255,.5); font-size: 14px; }
-  .scenario-notes { margin: 8px 0 0; font-size: 13px; color: rgba(226,236,255,.78); line-height: 1.6; }
+  .scenario-notes { margin: 8px 0 0; font-size: 15px; color: rgba(226,236,255,.84); line-height: 1.65; }
   .scenario-notes .check { color: #4ADE80; font-weight: 700; }
 
   .persona-bar { background: #0F0F0F; color: #fff; padding: 10px 16px 12px; border-top: 1px solid rgba(255,255,255,.08); }
@@ -240,12 +240,139 @@
   .model-grid { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 9px; }
   .model { display: flex; align-items: center; gap: 7px; font-size: 10px; color: rgba(255,255,255,.55); }
   .model .track { width: 76px; height: 5px; border-radius: 999px; background: rgba(255,255,255,.18); overflow: hidden; }
-  .model .fill { height: 100%; border-radius: 999px; }
+  .model .fill { display: block; height: 100%; border-radius: 999px; }
   .model b { color: #fff; font-size: 10px; width: 30px; text-align: right; }
   .chips { display: flex; gap: 6px; flex-wrap: wrap; }
   .chip { background: rgba(255,255,255,.12); border-radius: 999px; padding: 3px 9px; font-size: 10px; color: rgba(255,255,255,.65); }
   .chip.prod { background: rgba(255,255,255,.06); }
+  .chip.new { background:#F59E0B; color:#111; font-weight:800; }
+  .profile-link { border:0; background:none; color:#555; font-size:12px; font-weight:600; padding:4px 6px; cursor:pointer; }
+  .profile-link:hover { color:#EA1B0A; }
+  .profile-btn { border:0; background:rgba(255,255,255,.12); color:#fff; border-radius:999px; font-size:11px; font-weight:700; padding:5px 11px; }
+  .profile-btn.changed { background:#F59E0B; color:#111; box-shadow:0 0 0 2px rgba(245,158,11,.25); }
+  .model.changed .track { box-shadow:0 0 0 2px rgba(245,158,11,.34); }
+  .model-delta { background:#F59E0B; color:#111; font-size:9px; font-weight:800; border-radius:4px; padding:1px 4px; }
+  .scenario-change-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .scenario-change { color:#FCD34D; font-size:12px; font-weight:700; }
+  .scenario-change-row .change-chip { background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.18); color:#DCE6FF; }
+  .scenario-decision { border-left:1px solid rgba(255,255,255,.2); padding-left:7px; font-size:11px; color:rgba(226,236,255,.8); }
+  .scenario-decision b { color:#fff; }
+  .profile-change-link { border:1px solid rgba(245,158,11,.5); background:rgba(245,158,11,.12); color:#FCD34D; border-radius:999px; padding:3px 9px; font-size:11px; font-weight:700; }
   .persona-detail { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-top: 8px; }
+
+  /* ── Customer profile: segments, scoring & rationale ───────────────── */
+  .profile-hero { background:radial-gradient(1100px 320px at 12% -20%, #1E3A8A 0%, #0B1220 65%, #080D18 100%); color:#fff; padding:34px 0 30px; }
+  .profile-hero-inner { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+  .profile-kicker { margin:0 0 8px; font-size:10px; font-weight:800; letter-spacing:.16em; color:#93C5FD; }
+  .profile-hero h1 { margin:0; font-size:36px; line-height:1.1; letter-spacing:-.8px; }
+  .profile-meta { margin:8px 0 0; color:rgba(255,255,255,.62); font-size:14px; }
+  .profile-badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:14px; }
+  .pbadge { border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:3px 9px; font-size:10px; color:rgba(255,255,255,.7); }
+  .pbadge.on { background:rgba(34,197,94,.14); border-color:rgba(34,197,94,.4); color:#86EFAC; }
+  .pbadge.off { background:rgba(234,27,10,.14); border-color:rgba(234,27,10,.4); color:#FCA5A5; }
+  .pbadge.warn { background:rgba(245,158,11,.14); border-color:rgba(245,158,11,.45); color:#FCD34D; }
+  .profile-hero-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .profile-action { border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); color:#fff; border-radius:999px; padding:7px 13px; font-size:12px; font-weight:600; }
+  .profile-action:hover { background:rgba(255,255,255,.16); }
+  .profile-section { background:#F5F5F5; padding:24px 0 44px; }
+  .profile-note { background:#FFFBEB; border:1px solid #FDE68A; color:#92400E; border-radius:12px; padding:12px 14px; font-size:13px; line-height:1.55; margin-bottom:16px; }
+  .profile-grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); gap:18px; align-items:start; }
+  .profile-col { display:flex; flex-direction:column; gap:18px; min-width:0; }
+  .profile-card { background:#fff; border:1px solid #E5E7EB; border-radius:14px; padding:18px; }
+  #profile-decision { scroll-margin-top:76px; }
+  .profile-card h2 { margin:0 0 3px; font-size:16px; }
+  .profile-card .sub { margin:0 0 14px; font-size:12px; color:#6B7280; line-height:1.5; }
+  .score-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .score-card { border:1px solid #E5E7EB; border-radius:12px; padding:12px; background:#FAFAFA; }
+  .score-card.changed { border-color:#F59E0B; background:#FFFBEB; box-shadow:0 0 0 2px rgba(245,158,11,.12); }
+  .score-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .score-head span { font-size:12px; font-weight:700; color:#111827; }
+  .score-head b { font-size:20px; color:#111827; }
+  .score-sub { min-height:16px; font-size:10px; color:#6B7280; margin-top:2px; }
+  .score-delta { color:#B45309; font-weight:800; }
+  .score-meter { position:relative; height:8px; border-radius:999px; background:#E5E7EB; margin:9px 0 8px; }
+  .score-fill { display:block; height:100%; border-radius:999px; }
+  .score-marker { position:absolute; top:-3px; bottom:-3px; width:2px; background:#111827; opacity:.4; }
+  .score-desc { margin:0; font-size:11px; line-height:1.5; color:#4B5563; }
+  .score-evidence { margin:6px 0 0; font-size:11px; line-height:1.5; color:#374151; }
+  .score-threshold { margin:6px 0 0; font-size:10px; color:#6B7280; }
+  .driver-list { margin-top:9px; border-top:1px solid #E5E7EB; padding-top:7px; display:flex; flex-direction:column; gap:4px; }
+  .driver { display:flex; align-items:center; gap:6px; font-size:10px; color:#6B7280; }
+  .driver > span:first-child { flex:1; min-width:0; }
+  .driver-bar { width:54px; height:4px; border-radius:999px; background:#E5E7EB; overflow:hidden; flex-shrink:0; }
+  .driver-bar i { display:block; height:100%; border-radius:999px; }
+  .driver b { width:26px; text-align:right; font-size:9px; color:#374151; }
+  .rule-list { display:flex; flex-direction:column; gap:8px; }
+  .rule { border:1px solid #E5E7EB; border-radius:10px; padding:9px 11px; background:#FAFAFA; }
+  .rule.on { border-color:#BBF7D0; background:#F0FDF4; }
+  .rule.is-new { border-color:#F59E0B; box-shadow:0 0 0 2px rgba(245,158,11,.15); }
+  .rule-top { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .rule-dot { width:7px; height:7px; border-radius:50%; background:#D1D5DB; }
+  .rule.on .rule-dot { background:#16A34A; }
+  .rule-top b { font-size:12px; color:#111827; }
+  .rule-state { font-size:9px; font-weight:800; letter-spacing:.05em; border-radius:4px; padding:1px 5px; }
+  .rule-state.on { background:#DCFCE7; color:#166534; }
+  .rule-state.off { background:#F3F4F6; color:#6B7280; }
+  .rule-flag { font-size:9px; font-weight:800; border-radius:4px; padding:1px 5px; background:#F59E0B; color:#111; }
+  .rule-flag.removed { background:#FEE2E2; color:#991B1B; }
+  .rule-threshold { margin:5px 0 0; font-size:10px; color:#6B7280; }
+  .rule-now { margin:2px 0 0; font-size:11px; color:#374151; }
+  .change-banner { background:#1A1A1A; color:#fff; border-radius:14px; padding:14px 16px; margin-bottom:18px; }
+  .change-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .change-kicker { font-size:9px; font-weight:800; letter-spacing:.12em; color:#FCD34D; }
+  .change-head b { font-size:13px; }
+  .change-time { margin-left:auto; font-size:10px; color:rgba(255,255,255,.45); }
+  .change-facts { display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
+  .change-chip { border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:3px 8px; font-size:10px; color:rgba(255,255,255,.8); }
+  .change-chip.score { background:rgba(245,158,11,.2); border-color:rgba(245,158,11,.5); color:#FCD34D; font-weight:700; }
+  .change-chip.seg { background:rgba(34,197,94,.15); border-color:rgba(34,197,94,.4); color:#86EFAC; }
+  .change-chip.removed { background:rgba(234,27,10,.15); border-color:rgba(234,27,10,.4); color:#FCA5A5; }
+  .change-chip.hold { background:rgba(59,130,246,.15); border-color:rgba(59,130,246,.4); color:#93C5FD; }
+  .change-chip.decision { background:rgba(124,58,237,.18); border-color:rgba(124,58,237,.45); color:#C4B5FD; }
+  .change-note { margin:8px 0 0; font-size:11px; line-height:1.55; color:rgba(255,255,255,.55); }
+  .signal-list { display:flex; flex-direction:column; gap:2px; }
+  .signal { display:flex; align-items:flex-start; gap:8px; padding:6px 0; border-bottom:1px solid #F3F4F6; }
+  .signal:last-child { border-bottom:0; }
+  .signal.new { background:#FFFBEB; margin:0 -8px; padding:6px 8px; border-radius:8px; }
+  .signal-dot { width:7px; height:7px; border-radius:50%; background:#3B82F6; margin-top:5px; flex-shrink:0; }
+  .signal.new .signal-dot { background:#F59E0B; }
+  .signal-body { flex:1; min-width:0; }
+  .signal-body b { display:block; font-size:11px; color:#111827; }
+  .signal-body span { display:block; font-size:9px; color:#6B7280; }
+  .signal time { font-size:9px; color:#9CA3AF; }
+  .empty-note { font-size:12px; color:#6B7280; }
+  .kv-list { display:flex; flex-direction:column; gap:0; }
+  .kv { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px solid #F3F4F6; font-size:11px; }
+  .kv:last-child { border-bottom:0; }
+  .kv span { color:#6B7280; flex-shrink:0; }
+  .kv b { color:#111827; text-align:right; }
+  .decision-row { display:flex; gap:9px; padding:9px 0; border-bottom:1px solid #F3F4F6; }
+  .decision-row:last-of-type { border-bottom:0; }
+  .decision-tag { font-size:9px; font-weight:800; border-radius:4px; padding:2px 5px; height:fit-content; }
+  .decision-tag.nbo { background:#FEE9E7; color:#B91C1C; }
+  .decision-tag.nba { background:#DBEAFE; color:#1D4ED8; }
+  .decision-row b { font-size:12px; color:#111827; }
+  .decision-row p { margin:3px 0 0; font-size:11px; line-height:1.5; color:#4B5563; }
+  .decision-meta { display:inline-block; margin-top:3px; font-size:10px; color:#6B7280; }
+  .decision-rule { margin:5px 0 0; font-size:10px; line-height:1.5; color:#4B5563; }
+  .trace-title { margin:14px 0 2px; padding-top:11px; border-top:1px solid #E5E7EB; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#111827; }
+  .trace-order { margin:0 0 7px; font-size:10px; line-height:1.45; color:#6B7280; }
+  .decision-trace { display:flex; flex-direction:column; }
+  .trace-row { display:flex; align-items:flex-start; gap:7px; padding:7px 0; border-bottom:1px solid #F3F4F6; }
+  .trace-row:last-child { border-bottom:0; }
+  .trace-row.chosen { background:#F0FDF4; margin:0 -6px; padding:7px 6px; border-radius:8px; }
+  .trace-type { font-size:8px; font-weight:800; letter-spacing:.05em; border-radius:3px; padding:2px 4px; margin-top:1px; }
+  .trace-type.nbo { background:#FEE9E7; color:#B91C1C; }
+  .trace-type.nba { background:#DBEAFE; color:#1D4ED8; }
+  .trace-main { flex:1; min-width:0; }
+  .trace-main b { display:block; font-size:11px; color:#111827; }
+  .trace-main p { margin:2px 0 0; font-size:10px; line-height:1.45; color:#6B7280; }
+  .trace-status { font-size:8px; font-weight:800; border-radius:3px; padding:2px 4px; white-space:nowrap; }
+  .trace-status.chosen { background:#DCFCE7; color:#166534; }
+  .trace-status.suppressed { background:#FEE2E2; color:#991B1B; }
+  .trace-status.not_selected { background:#F3F4F6; color:#6B7280; }
+  @media (max-width: 900px) { .profile-grid { grid-template-columns:1fr; } }
+  @media (max-width: 600px) { .score-grid { grid-template-columns:1fr; } .profile-hero h1 { font-size:30px; } }
   .persona-menu { position: absolute; left: 16px; bottom: calc(100% + 10px); background: #1A1A1A; border: 1px solid rgba(255,255,255,.15); border-radius: 12px; padding: 6px; z-index: 70; width: 280px; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
   .persona-menu button { display: block; width: 100%; text-align: left; background: none; border: 0; color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 12px; }
   .persona-menu button:hover { background: rgba(255,255,255,.1); }
@@ -254,7 +381,7 @@
   @media (min-width: 1024px) { .persona-menu-wrap { position: static; } }
 
   /* ── Architecture view ─────────────────────────────────────────────── */
-  .arch-link { border: 1px solid rgba(143,179,255,.4); background: rgba(255,255,255,.08); color: #DCE6FF; border-radius: 999px; padding: 4px 11px; font-size: 12px; }
+  .arch-link { border: 1px solid rgba(143,179,255,.4); background: rgba(255,255,255,.08); color: #DCE6FF; border-radius: 999px; padding: 4px 11px; font-size: 12px; margin-left: auto; flex-shrink: 0; }
   .arch-link:hover { background: rgba(255,255,255,.18); }
   .arch-hero { background: radial-gradient(1100px 340px at 15% -10%, #1E3A8A 0%, #0B1220 60%, #080D18 100%); color: #fff; padding: 52px 0 48px; }
   .arch-hero .kicker { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #93C5FD; margin-bottom: 12px; }
@@ -341,6 +468,7 @@
     .hero h1 { font-size: 32px; }
     .nav-inner { height: auto; flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; row-gap: 4px; }
     .logo { font-size: 18px; margin-right: auto; }
+    .profile-link { display: none; }
     .main-nav { order: 5; flex: 1 0 100%; overflow-x: auto; }
     .main-nav a { white-space: nowrap; }
     .offer-card h2 { font-size: 24px; }
@@ -434,6 +562,12 @@ const OFFERS = {
     body: 'Luftvärmepump med installation av behörig installatör. Just nu upp till 2 000 kr i rabatt.',
     cta: 'Se värmepumpar', url: 'varmepump', productSlug: 'luftvarmepump',
   },
+  solar: {
+    id: 'solar', name: 'Solcellsanalys', product: 'Solceller + batteri', value: 'Kostnadsfri analys',
+    headline: 'Ditt tak kan producera egen el.',
+    body: 'Din förbrukning och takpotential pekar på god solel. Vi gör en kostnadsfri analys av storlek, besparing och batteribehov.',
+    cta: 'Se solpotential', url: 'smarta-tjanster', productSlug: '',
+  },
 }
 
 const FALLBACK = {
@@ -449,32 +583,207 @@ const PERSONAS = {
     id: 'eva', name: 'Eva Lindström', tariff: 'green', usage: 18000, housing: 'Villa', postcode: '111 22',
     scores: { ev: 0.15, churn: 0.08, green: 0.92, solar: 0.48 },
     holdings: ['Kvartspris + Smartladdning'],
-    segments: ['green affinity high', 'ev owners'],
+    segments: ['green affinity high', 'ev owners', 'heavy users'],
+    signals: ['green_contract', 'app_active', 'smart_charging_owner', 'villa', 'high_usage', 'loyalty'],
+    evidence: {
+      ev: 'Äger redan Kvartspris + Smartladdning; modellen ser hög produktkännedom men låg nyköpsbenägenhet.',
+      churn: 'Lång relation, appaktivitet och bundet green-avtal sänker risken.',
+      green: 'Green-avtal och hög förbrukning gör profilen till en tydlig green affinity.',
+      solar: 'Villa med hög förbrukning och EV-ägande ger viss sol- och batteripotential.',
+    },
   },
   karin: {
     id: 'karin', name: 'Karin Larsson', tariff: 'green', usage: 13000, housing: 'Villa', postcode: '352 31',
     scores: { ev: 0.74, churn: 0.06, green: 0.88, solar: 0.52 },
     holdings: ['Rörligt elpris'],
     segments: ['green affinity high', 'ev prospects'],
+    signals: ['green_contract', 'app_active', 'villa', 'ev_charging_page_view', 'loyalty'],
+    evidence: {
+      ev: 'EV-intresse och villa, men ingen laddbox ännu; hög köpbenägenhet.',
+      churn: 'Stabil green-kund med låg risk och aktivt appengagemang.',
+      green: 'Green-avtal och hög grönbenägenhet.',
+      solar: 'Villa och elbilsintresse gör sol och batteri relevant.',
+    },
   },
   jonas: {
     id: 'jonas', name: 'Jonas Svensson', tariff: 'none', usage: 11222, housing: 'Villa', postcode: '254 33',
     scores: { ev: 0.42, churn: 0.12, green: 0.35, solar: 0.4 },
     holdings: [],
-    segments: ['ev prospects'],
+    segments: [],
+    signals: ['no_contract', 'villa', 'price_sensitive'],
+    evidence: {
+      ev: 'Inget elavtal men hög EV-benägenhet; paketet är nästa logiska steg.',
+      churn: 'Ingen relation att tappa; churn blir relevant först när avtal finns.',
+      green: 'Låg grönbenägenhet; profilen drivs av pris och elbil.',
+      solar: 'Villa men lågt solintresse.',
+    },
   },
   lars: {
     id: 'lars', name: 'Lars Eriksson', tariff: 'fast', usage: 16000, housing: 'Lägenhet', postcode: '211 20',
     scores: { ev: 0.08, churn: 0.42, green: 0.24, solar: 0.18 },
     holdings: ['Fast elpris'],
     segments: ['heavy users'],
+    signals: ['fast_contract', 'high_usage', 'price_sensitive'],
+    evidence: {
+      ev: 'Lågt EV-intresse; fastpris och lägenhet.',
+      churn: 'Jämförelser och prismedvetenhet driver risken.',
+      green: 'Låg grönbenägenhet.',
+      solar: 'Lägenhet och låg solpotential.',
+    },
   },
   anders: {
     id: 'anders', name: 'Anders Petersson', tariff: 'fast', usage: 20000, housing: 'Villa', postcode: '169 70',
     scores: { ev: 0.1, churn: 0.2, green: 0.55, solar: 0.4 },
     holdings: ['Fast elpris'],
-    segments: ['green affinity high', 'loyalty high'],
+    segments: ['loyalty high', 'heavy users'],
+    signals: ['fast_contract', 'high_usage', 'villa', 'loyalty'],
+    evidence: {
+      ev: 'Villa och viss EV-nyfikenhet; ännu ingen laddbox.',
+      churn: 'Fastpris och hög förbrukning; risken är måttlig.',
+      green: 'Grönt intresse nära tröskeln för green affinity high.',
+      solar: 'Villa med hög förbrukning; solintresse finns.',
+    },
   },
+}
+
+const ZERO_SCORES = { ev: 0, churn: 0, green: 0, solar: 0 }
+
+const SCORE_META = {
+  ev: {
+    label: 'EV-benägenhet', short: 'EV', color: '#3B82F6', threshold: 0.6,
+    thresholdLabel: '≥ 60% aktiverar ev prospects; äger paketet → ev owners',
+    desc: 'Sannolikhet att kunden köper laddbox eller Smartladdning inom 90 dagar.',
+    evidence: 'Baseras på elbilsrelaterat beteende, mätdata, boende och befintligt innehav.',
+  },
+  churn: {
+    label: 'Churn-risk', short: 'Churn', color: '#EA1B0A', threshold: 0.6,
+    thresholdLabel: '≥ 60% aktiverar churn risk; ≥ 70% stoppar kommersiellt NBO',
+    desc: 'Risk att kunden säger upp eller byter elavtal inom 90 dagar.',
+    evidence: 'Baseras på jämförelser, avslutsflöde, avtalsbindning och engagemang.',
+  },
+  green: {
+    label: 'Grönbenägenhet', short: 'Green', color: '#22C55E', threshold: 0.7,
+    thresholdLabel: '≥ 70% aktiverar green affinity high',
+    desc: 'Sannolikhet att kunden väljer fossilfri el eller gröna tillägg.',
+    evidence: 'Baseras på grönt sidbeteende, avtalsval och hållbarhetsintresse.',
+  },
+  solar: {
+    label: 'Solintresse', short: 'Solar', color: '#F59E0B', threshold: 0.7,
+    thresholdLabel: '≥ 70% aktiverar solar ready; hög potential blir NBO',
+    desc: 'Sannolikhet att kunden efterfrågar solceller eller batteri.',
+    evidence: 'Baseras på boende, mätdata, förbrukning, takpotential och energiprofil.',
+  },
+}
+
+const SCORE_DRIVERS = {
+  ev: [
+    { label: 'Elbilsrelaterade sidvisningar', weight: 0.25 },
+    { label: 'Kalkylator / laddboxintresse', weight: 0.2 },
+    { label: 'Mätdata / laddmönster', weight: 0.2 },
+    { label: 'Villa med parkering', weight: 0.15 },
+    { label: 'Äger elbil eller laddbox', weight: 0.1 },
+    { label: 'Avsaknad av laddbox', weight: 0.1 },
+  ],
+  churn: [
+    { label: 'Jämförelse och avslutsflöde', weight: 0.35 },
+    { label: 'Avtalsbindning / uppsägningstid', weight: 0.2 },
+    { label: 'Prisförändring', weight: 0.15 },
+    { label: 'Support- och klagomålshistorik', weight: 0.15 },
+    { label: 'App- och serviceengagemang', weight: 0.15 },
+  ],
+  green: [
+    { label: 'Besök på gröna sidor', weight: 0.3 },
+    { label: 'Green-avtal eller grönt tillägg', weight: 0.25 },
+    { label: 'Nyhetsbrev / hållbarhetsintresse', weight: 0.2 },
+    { label: 'Boende och värmekälla', weight: 0.15 },
+    { label: 'Tidigare produktinnehav', weight: 0.1 },
+  ],
+  solar: [
+    { label: 'Solcellsintresse / kalkylator', weight: 0.3 },
+    { label: 'Villa och takyta', weight: 0.25 },
+    { label: 'Dagtidsförbrukning / mätdata', weight: 0.2 },
+    { label: 'Batteri och EV', weight: 0.15 },
+    { label: 'Lokal solpotential', weight: 0.1 },
+  ],
+}
+
+const SEGMENT_RULES = [
+  {
+    key: 'ev_owners', label: 'ev owners',
+    threshold: 'Kunden äger Kvartspris + Smartladdning',
+    test: (c) => c.owns('Kvartspris + Smartladdning'),
+    reason: (c) => `Äger paketet · EV ${pct(c.scores.ev)}`,
+  },
+  {
+    key: 'ev_prospects', label: 'ev prospects',
+    threshold: 'EV ≥ 60% och kunden äger inte Kvartspris + Smartladdning',
+    test: (c) => c.scores.ev >= 0.6 && !c.owns('Kvartspris + Smartladdning'),
+    reason: (c) => `EV ${pct(c.scores.ev)} · saknar paketet`,
+  },
+  {
+    key: 'green_affinity_high', label: 'green affinity high',
+    threshold: 'Grönbenägenhet ≥ 70%',
+    test: (c) => c.scores.green >= 0.7,
+    reason: (c) => `Green ${pct(c.scores.green)} · tröskel 70%`,
+  },
+  {
+    key: 'solar_ready', label: 'solar ready',
+    threshold: 'Solintresse ≥ 70%',
+    test: (c) => c.scores.solar >= 0.7,
+    reason: (c) => `Solar ${pct(c.scores.solar)} · tröskel 70%`,
+  },
+  {
+    key: 'churn_risk', label: 'churn risk',
+    threshold: 'Churn-risk ≥ 60%',
+    test: (c) => c.scores.churn >= 0.6,
+    reason: (c) => `Churn ${pct(c.scores.churn)} · tröskel 60%`,
+  },
+  {
+    key: 'heavy_users', label: 'heavy users',
+    threshold: 'Årsförbrukning ≥ 15 000 kWh',
+    test: (c) => c.profile.usage >= 15000,
+    reason: (c) => `${c.profile.usage.toLocaleString('sv-SE')} kWh/år · tröskel 15 000`,
+  },
+  {
+    key: 'loyalty_high', label: 'loyalty high',
+    threshold: 'Fast elavtal + EV < 20% + Green ≥ 50%',
+    test: (c) => c.profile.tariff === 'fast' && c.scores.ev < 0.2 && c.scores.green >= 0.5,
+    reason: (c) => `EV ${pct(c.scores.ev)} · Green ${pct(c.scores.green)} · fast avtal`,
+  },
+]
+
+const SIGNAL_META = {
+  cookie_only: { label: 'Endast anonym cookie', source: 'Webb', impact: 'Ingen identitet' },
+  green_contract: { label: 'Green-avtal', source: 'Masterdata', impact: 'Green +' },
+  app_active: { label: 'Appen används', source: 'App events', impact: 'Churn −' },
+  smart_charging_owner: { label: 'Äger Smartladdning', source: 'Masterdata', impact: 'EV +' },
+  villa: { label: 'Villa', source: 'Masterdata', impact: 'EV/solar +' },
+  high_usage: { label: 'Hög årsförbrukning', source: 'Mätdata', impact: 'Heavy users +' },
+  loyalty: { label: 'Lång kundrelation', source: 'CRM', impact: 'Loyalty +' },
+  no_contract: { label: 'Inget elavtal', source: 'CRM', impact: 'Conversion +' },
+  price_sensitive: { label: 'Prismedveten', source: 'CRM', impact: 'Churn +' },
+  fast_contract: { label: 'Fast elpris', source: 'Masterdata', impact: 'Churn −' },
+  ev_charging_page_view: { label: 'Elbilsladdning besökt', source: 'Webb', impact: 'EV +' },
+  tariff_calculator_use: { label: 'Avtalskalkylator använd', source: 'Webb', impact: 'EV +' },
+  offer_click: { label: 'Erbjudandeklick', source: 'Webb', impact: 'Conversion +' },
+  contract_signed: { label: 'Avtal tecknat', source: 'Masterdata', impact: 'Innehav +' },
+  comparison_view: { label: 'Jämförelsesida', source: 'Webb', impact: 'Churn +' },
+  cancel_flow_view: { label: 'Avslutsflöde', source: 'Webb', impact: 'Churn +' },
+  green_tariff_page_view: { label: 'Grön el-sida', source: 'Webb', impact: 'Green +' },
+  newsletter_signup: { label: 'Nyhetsbrev', source: 'Webb', impact: 'Consent +' },
+  outage_reported: { label: 'Avbrott rapporterat', source: 'Nät', impact: 'Service' },
+  outage_resolved: { label: 'Avbrott åtgärdat', source: 'Nät', impact: 'Service' },
+  anonymous_session: { label: 'Anonym session', source: 'Webb', impact: 'Cookie' },
+  login: { label: 'Inloggning', source: 'Identity', impact: 'Identity +' },
+  identify: { label: 'Cookie → kund', source: 'Identity', impact: 'Identity +' },
+  realtime_decision: { label: 'Realtidsbeslut', source: 'Decision engine', impact: 'NBO/NBA' },
+  interval_metering: { label: '15-minutersmätning', source: 'Mätdata', impact: 'Lastprofil' },
+  night_load_pattern: { label: 'Nattlig lastprofil', source: 'Mätdata', impact: 'EV +' },
+  ev_charging_disaggregated: { label: 'Elbilsladdning separerad', source: 'NILM / disaggregation', impact: 'EV ++' },
+  winter_load_profile: { label: 'Vinterlastprofil', source: 'Mätdata', impact: 'Värmepump +' },
+  heat_pump_detected: { label: 'Värmepump identifierad', source: 'NILM / disaggregation', impact: 'Värmepump +' },
+  daytime_consumption: { label: 'Hög dagtidsförbrukning', source: 'Mätdata', impact: 'Solar +' },
+  roof_potential: { label: 'Tak- och solpotential', source: 'Geo / solkarta', impact: 'Solar +' },
 }
 
 const tariffLabel = (t) => t === 'green' ? 'green tariff' : t === 'fast' ? 'fast tariff' : t === 'rorligt' ? 'rörligt elavtal' : 'inget elavtal'
@@ -488,16 +797,19 @@ const SCENARIOS = [
         label: 'Utforskar elbilsladdning', page: 'ev-charging',
         notes: ['Signalen ev_charging_page_view registreras i kundprofilen', 'EV-benägenheten är fortfarande låg — inga segmentändringar', 'NBO/NBA: inget relevant idag'],
         apply: { scores: { ev: 0.45 } },
+        signals: ['ev_charging_page_view'],
       },
       {
         label: 'Räknar på hemmaladdning', page: 'tariffs',
         notes: ['Avtalskalkylatorn registreras (tariff_calculator_use)', 'Profilen uppdateras: EV-benägenhet → 0,85', 'Segment beräknas om → ev_prospects', 'NBO beräknas om → Kvartspris + Smartladdning vinner'],
         apply: { scores: { ev: 0.85 } },
+        signals: ['tariff_calculator_use'],
       },
       {
         label: 'Tecknar paketet', page: 'inbox',
         notes: ['Klick registreras (offer_click)', 'Paketet läggs till i kundens innehav', 'NBO undertrycks – kunden har redan produkten', 'Välkomstmeddelande till inkorg + e-postkampanj'],
         apply: { holding: 'Kvartspris + Smartladdning', scores: { ev: 0.9 } },
+        signals: ['offer_click', 'contract_signed'],
         messages: [
           { channel: 'sms', body: 'Hej Jonas! Ditt avtal för Kvartspris + Smartladdning är aktivt. Så här aktiverar du din laddbox: hallenergy.se/smartladdning' },
           { channel: 'email', subject: 'Välkommen till Kvartspris + Smartladdning', body: 'Hej Jonas! Ditt avtal är på plats. Nästa steg: hämta din Zaptec Go och koppla den till Hall Energy Smartladdning för att ladda på de billigaste timmarna.' },
@@ -514,11 +826,13 @@ const SCENARIOS = [
         label: 'Kunden surfar utloggad', page: 'home',
         notes: ['Kunden besöker webben utan att vara inloggad', 'Webben visar generellt innehåll – inga personliga erbjudanden'],
         apply: { login: false },
+        signals: ['anonymous_session'],
       },
       {
         label: 'Strömavbrott rapporteras', page: 'home',
         notes: ['Incident registreras: outage_reported (elnät: lokalt)', 'Utloggad kund: avbrottet matchas mot ungefärlig plats (IP) – därför visas områdesbannern', 'Inloggning krävs för att koppla avbrottet till avtal och adress', 'Kundprofilen uppdateras med avbrottpåverkan', 'NBA sätts till driftinformation → banner / inkorg / sms', 'Alla kommersiella erbjudanden undertrycks'],
         apply: { outage: true },
+        signals: ['outage_reported'],
         messages: [
           { channel: 'sms', body: 'Ett strömavbrott har registrerats i ditt område. Beräknad återställning om ca 2 timmar. Status: hallenergy.se/driftsinformation' },
           { channel: 'push', subject: 'Strömavbrott i ditt område', body: 'Karin, vi arbetar på ett avbrott i ditt lokala elnät. Beräknad återställning: ca 2 timmar.' },
@@ -529,6 +843,7 @@ const SCENARIOS = [
         label: 'Kunden loggar in', page: 'inbox',
         notes: ['Kunden loggar in (session: inloggad)', 'Personlig banner med avtal, område och beräknad återställning', 'Inkorg: meddelande med detaljerad status'],
         apply: { login: true },
+        signals: ['login'],
         messages: [
           { channel: 'push', subject: 'Uppdatering: strömavbrott', body: 'Reparatörerna är på plats i ditt område. Följ statusen för ditt avtal i Mina sidor.' },
           { channel: 'inbox', subject: 'Lägesrapport – ditt elnät', body: 'Reparation pågår i ditt lokala elnät. Beräknad återställning: ca 2 timmar.' },
@@ -538,6 +853,7 @@ const SCENARIOS = [
         label: 'Strömmen är åter', page: 'home',
         notes: ['Incidenten stängs (outage_resolved)', 'Avbrottssignaler rensas från kundprofilen', 'Kommersiella erbjudanden återaktiveras', 'Bannern på webb döljs'],
         apply: { outage: false },
+        signals: ['outage_resolved'],
         messages: [
           { channel: 'push', subject: 'Strömmen är tillbaka', body: 'Elförsörjningen i ditt område är återställd. Tack för tålamodet!' },
           { channel: 'inbox', subject: 'Avbrottet är åtgärdat', body: 'Strömmen är tillbaka i ditt område. Normala villkor gäller.' },
@@ -552,6 +868,7 @@ const SCENARIOS = [
         label: 'Jämför priser', page: 'tariffs',
         notes: ['Jämförelsesignal registreras (comparison_view)', 'Profilen uppdateras: churn-risk → 0,8', 'Segment beräknas om → churn_risk', 'Kommersiellt NBO försvinner', 'Trigger → retentionskampanj (e-post)'],
         apply: { scores: { churn: 0.8 } },
+        signals: ['comparison_view'],
         messages: [
           { channel: 'email', subject: 'Vi vill behålla dig som kund', body: 'Hej Lars! Vi ser att du har jämfört elpriser. Vi vill gärna hitta ett bättre elavtal åt dig — ring oss så tittar vi på ditt pris.' },
         ],
@@ -560,6 +877,7 @@ const SCENARIOS = [
         label: 'Besöker avslutsflödet', page: 'home',
         notes: ['Sidan /avsluta besöks (page_view)', 'Profilen uppdateras: churn-risk → 0,9', 'Inga kommersiella erbjudanden', 'Endast serviceinnehåll kvar'],
         apply: { scores: { churn: 0.9 } },
+        signals: ['cancel_flow_view'],
       },
     ],
   },
@@ -570,11 +888,13 @@ const SCENARIOS = [
         label: 'Läser om fossilfri el', page: 'tariffs',
         notes: ['Grön-toppsida besöks (green_tariff_page_view)', 'Profilen uppdateras: grönbenägenhet → 0,8', 'Segment beräknas om → green_affinity_high', 'NBO: fossilfri rörlig el'],
         apply: { scores: { green: 0.8 } },
+        signals: ['green_tariff_page_view'],
       },
       {
         label: 'Prenumererar på nyhetsbrev', page: 'home',
         notes: ['Nyhetsbrevsprenumeration registreras', 'Profilen uppdateras (nyhetsbrev: prenumererad)', 'NBA för nyhetsbrev tas bort – kunden är redan prenumererad'],
         apply: { newsletter: true },
+        signals: ['newsletter_signup'],
         messages: [
           { channel: 'email', subject: 'Välkommen till vårt nyhetsbrev', body: 'Hej Anders! Tack för att du prenumererar. Du får tips om fossilfri el, solceller och laddning — först i brevlådan.' },
         ],
@@ -588,11 +908,13 @@ const SCENARIOS = [
         label: 'Besökaren utforskar elbilsladdning', page: 'ev-charging',
         notes: ['Besökaren (okänd, endast cookie) öppnar elbilsladdningssidan', 'Signaler samlas löpande under den anonyma kakan', 'EV-benägenhet beräknas i realtid'],
         apply: { anonymous: true, scores: { ev: 0.7 } },
+        signals: ['ev_charging_page_view'],
       },
       {
         label: 'Realtidsbeslut från signaler', page: 'home',
         notes: ['Signaler → beteendebaserad scoring', 'Segment härleds i realtid (ev_prospects)', 'NBO/NBA beräknas utan konto eller inloggning', 'Kanal: webb är öppen; inkorg kräver inloggning'],
         apply: {},
+        signals: ['realtime_decision'],
       },
     ],
   },
@@ -603,11 +925,13 @@ const SCENARIOS = [
         label: 'Anonyma signaler samlas', page: 'ev-charging',
         notes: ['Besökaren är okänd och skickar elbilsignaler', 'Ingen profil ännu – inga personliga erbjudanden'],
         apply: { anonymous: true, scores: { ev: 0.7 } },
+        signals: ['ev_charging_page_view'],
       },
       {
         label: 'Besökaren identifieras (loggar in)', page: 'home',
         notes: ['Anonyma signaler kopplas till profilen (Anders)', 'Anders tecknar ett elavtal (Fast elpris) – kan nu logga in', 'Segment beräknas om – Anders hamnar i ev_prospects', 'Beslut skapas med nytt NBO/NBA'],
         apply: { identify: 'anders', login: true, holding: 'Fast elpris', scores: { ev: 0.7 } },
+        signals: ['identify', 'contract_signed'],
         messages: [
           { channel: 'email', subject: 'Välkommen till Hall Energy — ditt Fast elpris är aktivt', body: 'Hej Anders! Tack för att du tecknade ditt elavtal hos oss. Vi startar leveransen så snart som möjligt.' },
           { channel: 'push', subject: 'Välkommen till Hall Energy!', body: 'Ditt elavtal (Fast elpris) är registrerat. Välkommen!' },
@@ -618,6 +942,88 @@ const SCENARIOS = [
         label: 'Nytt NBO/NBA från profilen', page: 'tariffs',
         notes: ['Beslutsmotorn kör mot Anders uppdaterade profil', 'NBO: Kvartspris + Smartladdning (villa + EV-intresse)', 'Kanal: webb (paketet markeras), inkorg'],
         apply: {},
+        signals: ['realtime_decision'],
+      },
+    ],
+  },
+  {
+    key: 'hidden_ev', title: 'Dold elbilsladdning', persona: 'anders',
+    steps: [
+      {
+        label: 'Mätdata analyseras', page: 'home',
+        notes: ['15-minutersmätning analyseras för Anders hushåll', 'Lastprofilen visar återkommande nattlig baslast', 'Ingen EV-signal finns i CRM eller webbhistorik ännu'],
+        apply: {},
+        signals: ['interval_metering'],
+      },
+      {
+        label: 'Disaggregation hittar laddning', page: 'home',
+        notes: ['NILM separerar en laddsignatur på 2,4 kW mellan 22:00 och 06:00', 'Mönstret återkommer fem nätter per vecka', 'EV-benägenhet 10% → 82%; segmentet ev prospects tänds', 'NBO: Kvartspris + Smartladdning'],
+        apply: { scores: { ev: 0.82 } },
+        signals: ['night_load_pattern', 'ev_charging_disaggregated'],
+        messages: [
+          { channel: 'inbox', subject: 'Ditt hem laddar elbil på natten', body: 'Din godkända mätdata visar en återkommande laddprofil på natten. Vi har lagt ett paket med Kvartspris + Smartladdning i din inkorg.' },
+          { channel: 'email', subject: 'Smart laddning för ditt hem', body: 'Hej Anders! Din förbrukning visar att en elbil laddas hemma på natten. Med Kvartspris och Smartladdning flyttas laddningen till de billigaste kvartarna.' },
+        ],
+      },
+      {
+        label: 'Kunden ser förklaringen', page: 'profile',
+        notes: ['Profilen visar exakt vilka mätsignaler som höjde EV-scoren', 'Beslutsspåret visar varför paketet valdes och vilka alternativ som stoppades', 'Kunden kan invända mot användningen och ändra sitt samtycke'],
+        apply: {},
+        signals: ['realtime_decision'],
+      },
+    ],
+  },
+  {
+    key: 'heat_pump', title: 'Värmepump i lastprofilen', persona: 'karin',
+    steps: [
+      {
+        label: 'Vinterlasten kartläggs', page: 'home',
+        notes: ['Vintermånadernas förbrukning är 3,2 gånger sommarens', 'Kraftiga morgon- och kvällstoppar återkommer vid kyla', 'Mönstret liknar elvärme eller värmepump – inte hushållsel'],
+        apply: {},
+        signals: ['interval_metering', 'winter_load_profile'],
+      },
+      {
+        label: 'Disaggregation bekräftar värmepump', page: 'varmepump',
+        notes: ['NILM hittar en kompressorsignatur och en återkommande värmeprofil', 'Signalen heat_pump_detected läggs i kundprofilen', 'Beslutet växlar: värmepumpserbjudandet går före EV-paketet', 'NBO: Värmepumpsrabatt upp till 2 000 kr'],
+        apply: {},
+        signals: ['heat_pump_detected'],
+        messages: [
+          { channel: 'inbox', subject: 'Din lastprofil visar en värmepump', body: 'Vi har identifierat en värmepump i ditt hem. Just nu får du upp till 2 000 kr i rabatt på en luftvärmepump med installation.' },
+          { channel: 'email', subject: 'Spara energi med rätt värmepump', body: 'Hej Karin! Din förbrukning visar ett tydligt värmepumpsmönster. Vi har tagit fram ett erbjudande som kan sänka din uppvärmningskostnad.' },
+        ],
+      },
+      {
+        label: 'Kunden ser beslutet', page: 'profile',
+        notes: ['Profilen visar värmepumpssignalen och varför den väger tyngst', 'Beslutsspåret visar att EV-paketet passerade tröskeln men prioriterades ned', 'Kunden kan se, förklara och ändra användningen'],
+        apply: {},
+        signals: ['realtime_decision'],
+      },
+    ],
+  },
+  {
+    key: 'solar_profile', title: 'Solpotential i lastprofilen', persona: 'eva',
+    steps: [
+      {
+        label: 'Dagtidsförbrukningen kartläggs', page: 'home',
+        notes: ['15-minutersdata visar att 42% av förbrukningen sker dagtid', 'Villan har sydvästläge och en takyta som klarar cirka 9,8 kWp', 'Solintresse 48% → 62%'],
+        apply: { scores: { solar: 0.62 } },
+        signals: ['interval_metering', 'daytime_consumption'],
+      },
+      {
+        label: 'Tak och solel beräknas', page: 'smarta-tjanster',
+        notes: ['Takpotential, solinstrålning och förbrukningsprofil vägs samman', 'Solintresse 62% → 82%; segmentet solar ready tänds', 'NBO: Solcellsanalys med beräknad besparing och batteribehov'],
+        apply: { scores: { solar: 0.82 } },
+        signals: ['roof_potential'],
+        messages: [
+          { channel: 'inbox', subject: 'Ditt tak har god solpotential', body: 'Din förbrukning och takyta pekar på god solel. Vi har lagt en kostnadsfri solcellsanalys i din inkorg.' },
+          { channel: 'email', subject: 'Så mycket kan ditt tak producera', body: 'Hej Eva! Din lastprofil och takpotential visar att solceller kan bli lönsamt. Boka en kostnadsfri analys för storlek, besparing och batteribehov.' },
+        ],
+      },
+      {
+        label: 'Kunden ser potentialen', page: 'profile',
+        notes: ['Profilen visar hur mätdata och takpotential höjde solintresset', 'Beslutsspåret visar varför solcellsanalysen valdes före profilens default', 'Kunden kan se och ändra vilka mätdata som får användas'],
+        apply: {},
+        signals: ['realtime_decision'],
       },
     ],
   },
@@ -643,7 +1049,7 @@ const ARCH_LAYERS = [
   {
     id: 'data', title: 'Data & identitet', hint: 'Signaler, sanning och samtycke',
     color: '#059669', soft: '#ECFDF5',
-    nodes: ['events', 'cdp', 'identity', 'consent', 'master', 'geo'],
+    nodes: ['events', 'metering', 'cdp', 'identity', 'consent', 'master', 'geo'],
   },
   {
     id: 'measurement', title: 'Mätning & styrning', hint: 'Lär, bevisa och styr',
@@ -669,6 +1075,7 @@ const ARCH_NODES = {
   catalog: { label: 'Erbjudandekatalog', sys: 'Offers & actions', icon: '🗂️', desc: 'Erbjudanden, åtgärder och produkter med målgrupp, villkor och prioritet.' },
   policy: { label: 'Kontaktpolicy', sys: 'Frekvens & preferens', icon: '⏱️', desc: 'Globala caps, kanalpreferens, tysta timmar och kontakthistorik.' },
   events: { label: 'Eventinsamling', sys: 'Streaming & batch', icon: '⚡', desc: 'Sidvisningar, klick, köp, kalkylatorer och servicehändelser. Exempel: Kafka, Segment, Snowplow.' },
+  metering: { label: 'Mätdata & disaggregation', sys: '15-min & NILM', icon: '🔌', desc: 'Kvart- och timmätning, lastprofiler och disaggregation (NILM) som identifierar elbil, värmepump och solpotential.' },
   cdp: { label: 'Kundprofil / CDP', sys: '360°-profil', icon: '🗄️', desc: 'Enhetlig profil av kund, avtal, innehav, interaktioner och modellresultat. Exempel: Adobe RTCDP, Salesforce Data Cloud.' },
   identity: { label: 'Identitetsupplösning', sys: 'Cookie → kund', icon: '🔐', desc: 'Kopplar anonyma cookies och enheter till kund och hushåll — grunden för att sy ihop signaler.' },
   consent: { label: 'Samtycke & preferenser', sys: 'GDPR & kanalval', icon: '✅', desc: 'Personalisering på/av, kanalval, retention och rättslig grund. Exempel: OneTrust, Usercentrics.' },
@@ -764,6 +1171,51 @@ const ARCH_SCENARIOS = {
       { node: 'journey', title: 'Välkomstflöde', text: 'E-post, push och inkorg får välkomstmeddelanden.' },
     ],
   },
+  hidden_ev: {
+    title: 'Dold elbilsladdning', persona: 'Anders Petersson',
+    summary: '15-minutersmätning och NILM separerar en återkommande nattlig laddsignatur. EV-benägenheten går från 10% till 82%, ev prospects tänds och paketerbjudandet vinner — utan att kunden klickat på elbilssidor.',
+    nodes: ['web', 'inbox', 'email', 'surfaces', 'journey', 'content', 'decision', 'rules', 'scoring', 'segments', 'catalog', 'policy', 'events', 'metering', 'cdp', 'identity', 'consent', 'master', 'analytics', 'decisionlog', 'governance'],
+    flow: [
+      { node: 'metering', title: '15-minutersmätning', text: 'Mätvärden för Anders hushåll analyseras som lastprofil.' },
+      { node: 'events', title: 'Nattlig lastsignal', text: 'Återkommande baslast mellan 22:00 och 06:00 går in i eventströmmen.' },
+      { node: 'metering', title: 'NILM separerar laddning', text: 'Disaggregation identifierar en laddsignatur på 2,4 kW fem nätter per vecka.' },
+      { node: 'scoring', title: 'EV 10% → 82%', text: 'Mätmönstret väger tungt i EV-modellen; ingen webbhistorik krävs.' },
+      { node: 'segments', title: 'Segment: ev prospects', text: 'EV ≥ 60% och kunden äger inte paketet → segmentet tänds.' },
+      { node: 'decision', title: 'Paketerbjudandet vinner', text: 'Beslutsmodulen väljer Kvartspris + Smartladdning och visar hela kandidatlistan.' },
+      { node: 'journey', title: 'Förklaring i inkorg', text: 'Kunden får en förklaring och kan invända mot användningen i profilen.' },
+      { node: 'analytics', title: 'Mätning & logg', text: 'Impressions, klick, konvertering och beslutsunderlag sparas.' },
+    ],
+  },
+  heat_pump: {
+    title: 'Värmepump i lastprofilen', persona: 'Karin Larsson',
+    summary: 'Vinterlast och en återkommande kompressorsignatur identifierar en värmepump. Beslutet växlar från EV-paketet till värmepumpserbjudandet, med spårbar förklaring i profilen.',
+    nodes: ['web', 'inbox', 'email', 'surfaces', 'journey', 'content', 'decision', 'rules', 'scoring', 'segments', 'catalog', 'policy', 'events', 'metering', 'cdp', 'identity', 'consent', 'master', 'analytics', 'decisionlog', 'governance'],
+    flow: [
+      { node: 'metering', title: 'Vinterlast analyseras', text: 'Mätdata visar 3,2 gånger högre förbrukning på vintern.' },
+      { node: 'events', title: 'Värmesignal', text: 'Kraftiga morgon- och kvällstoppar vid kyla registreras.' },
+      { node: 'metering', title: 'NILM hittar kompressor', text: 'Disaggregation separerar värmepumpens kompressorsignatur.' },
+      { node: 'cdp', title: 'Insight i profilen', text: 'heat_pump_detected läggs i kundprofilen som en spårbar signal.' },
+      { node: 'rules', title: 'Värmepump prioriteras', text: 'Signalen gör värmepumpserbjudandet tillgängligt och går före EV-paketet.' },
+      { node: 'decision', title: 'Nytt NBO', text: 'Beslutsmodulen väljer värmepumpsrabatten och visar att EV-paketet passerade men prioriterades ned.' },
+      { node: 'journey', title: 'Förklaring i kanaler', text: 'Inkorg och e-post får erbjudandet; profilen visar beslutsordningen.' },
+      { node: 'analytics', title: 'Mätning & logg', text: 'Klick, konvertering och beslutsunderlag följs upp.' },
+    ],
+  },
+  solar_profile: {
+    title: 'Solpotential i lastprofilen', persona: 'Eva Lindström',
+    summary: 'Dagtidsförbrukning, takyta och solinstrålning höjer solintresset från 48% till 82%. Segmentet solar ready tänds och solcellsanalys blir NBO.',
+    nodes: ['web', 'inbox', 'email', 'surfaces', 'journey', 'content', 'decision', 'rules', 'scoring', 'segments', 'catalog', 'policy', 'events', 'metering', 'cdp', 'identity', 'consent', 'master', 'geo', 'analytics', 'decisionlog', 'governance'],
+    flow: [
+      { node: 'metering', title: 'Dagtidsförbrukning', text: '15-minutersdata visar att 42% av förbrukningen sker dagtid.' },
+      { node: 'geo', title: 'Tak och solinstrålning', text: 'Adress, takyta och sydvästläge ger cirka 9,8 kWp potential.' },
+      { node: 'events', title: 'Solpotential-signal', text: 'daytime_consumption och roof_potential går in i profilen.' },
+      { node: 'scoring', title: 'Solar 48% → 82%', text: 'Förbrukningsprofil och takpotential höjer solintresset.' },
+      { node: 'segments', title: 'Segment: solar ready', text: 'Solintresse ≥ 70% → segmentet tänds.' },
+      { node: 'decision', title: 'Solcellsanalys vinner', text: 'Beslutsmodulen väljer solcellsanalys före profilens default och visar kandidaterna.' },
+      { node: 'journey', title: 'Förklaring i kanaler', text: 'Inkorg och e-post får analysen; profilen visar varför.' },
+      { node: 'analytics', title: 'Mätning & logg', text: 'Bokade analyser, klick och beslutsunderlag följs upp.' },
+    ],
+  },
 }
 
 // ── State ──────────────────────────────────────────────────────────────────
@@ -782,6 +1234,8 @@ const state = {
   outage: false,
   active: null,          // { key, stepIdx }
   messages: [],          // { customerId, scenarioKey, stepIndex, channel, subject, body, time }
+  signalLog: {},         // customerId -> applied scenario signals
+  lastChange: null,      // diff from the most recent scenario step
   personaMenu: false,
   explain: false,
   toast: null,           // web inbox notification after a step
@@ -797,16 +1251,122 @@ const persona = () => (!state.customerId || state.anonymous) ? null : PERSONAS[s
 const holdingsOf = (id) => state.holdings[id] ?? []
 const owns = (id, name) => holdingsOf(id).includes(name)
 
-function segmentsFor(id) {
+function profileFor(id, anonymous = state.anonymous) {
+  if (anonymous || !id || !PERSONAS[id]) {
+    return {
+      id: id || 'anon', name: 'Anonym besökare', tariff: 'none', usage: 0,
+      housing: 'Okänd', postcode: 'Okänd', scores: { ...ZERO_SCORES },
+      holdings: [], segments: [], signals: ['cookie_only'], evidence: {}, anonymous: true,
+    }
+  }
+  return PERSONAS[id]
+}
+
+function scoresOf(id, anonymous = state.anonymous) {
+  return { ...ZERO_SCORES, ...(state.scores[id] || {}) }
+}
+
+function segmentContext(id, anonymous = state.anonymous) {
+  return {
+    id,
+    profile: profileFor(id, anonymous),
+    scores: scoresOf(id, anonymous),
+    owns: (name) => holdingsOf(id).includes(name),
+  }
+}
+
+function segmentsFor(id, anonymous = state.anonymous) {
   if (!id) return []
-  const s = state.scores[id]
-  const list = []
-  if (s.ev >= 0.6) list.push(owns(id, 'Kvartspris + Smartladdning') ? 'ev owners' : 'ev prospects')
-  if (s.green >= 0.7) list.push('green affinity high')
-  if (s.churn >= 0.6) list.push('churn risk')
-  if (PERSONAS[id].usage >= 15000) list.push('heavy users')
-  if (s.ev < 0.2 && s.green >= 0.5) list.push('loyalty high')
-  return [...new Set(list)]
+  const ctx = segmentContext(id, anonymous)
+  return SEGMENT_RULES.filter((rule) => rule.test(ctx)).map((rule) => rule.label)
+}
+
+function segmentEvaluations(id, anonymous = state.anonymous) {
+  const ctx = segmentContext(id, anonymous)
+  return SEGMENT_RULES.map((rule) => ({
+    ...rule,
+    active: rule.test(ctx),
+    now: rule.reason(ctx),
+  }))
+}
+
+function signalLogFor(id) {
+  return state.signalLog[id] || []
+}
+
+function hasInsight(id, key) {
+  return signalLogFor(id).some((s) => s.key === key)
+}
+
+function addSignals(id, keys, scene, stepIndex) {
+  if (!keys || !keys.length) return
+  const log = state.signalLog[id] || (state.signalLog[id] = [])
+  keys.forEach((key) => {
+    if (log.some((x) => x.key === key && x.scenarioKey === scene.key && x.stepIndex === stepIndex)) return
+    const meta = SIGNAL_META[key] || { label: key, source: 'Signal', impact: '' }
+    log.push({ key, ...meta, time: nowTime(), scenarioKey: scene.key, stepIndex })
+  })
+}
+
+function profileSignals(id, anonymous = state.anonymous) {
+  const base = (profileFor(id, anonymous).signals || []).map((key) => ({
+    key, ...(SIGNAL_META[key] || { label: key, source: 'Signal', impact: '' }),
+  }))
+  return [...base, ...signalLogFor(id)]
+}
+
+function snapshotState() {
+  const id = state.customerId || 'anon'
+  return {
+    id,
+    anonymous: state.anonymous,
+    loggedIn: state.loggedIn,
+    outage: state.outage,
+    scores: scoresOf(id),
+    segments: segmentsFor(id),
+    holdings: [...holdingsOf(id)],
+    newsletter: !!state.newsletter[id],
+    decision: decide(),
+  }
+}
+
+function diffState(before, after, scene, step, stepIndex) {
+  const scores = {}
+  Object.keys(SCORE_META).forEach((key) => {
+    const from = before.scores[key] ?? 0
+    const to = after.scores[key] ?? 0
+    if (from !== to) scores[key] = { from, to }
+  })
+  const b = before.decision || {}
+  const a = after.decision || {}
+  const decisionChanged = b.rule !== a.rule
+    || (b.nbo?.name || '') !== (a.nbo?.name || '')
+    || (b.nba?.headline || '') !== (a.nba?.headline || '')
+  return {
+    customerId: after.id,
+    anonymous: after.anonymous,
+    scenarioKey: scene.key,
+    stepIndex,
+    stepLabel: step.label,
+    scores,
+    segmentsAdded: after.segments.filter((s) => !before.segments.includes(s)),
+    segmentsRemoved: before.segments.filter((s) => !after.segments.includes(s)),
+    holdingsAdded: after.holdings.filter((h) => !before.holdings.includes(h)),
+    newsletterChanged: before.newsletter !== after.newsletter,
+    decisionChanged,
+    decisionBefore: { rule: b.rule || '', nbo: b.nbo?.name || null, nba: b.nba?.headline || null },
+    decisionAfter: { rule: a.rule || '', nbo: a.nbo?.name || null, nba: a.nba?.headline || null },
+    signals: step.signals || [],
+    notes: step.notes || [],
+    time: nowTime(),
+  }
+}
+
+function lastChangeFor(id) {
+  const c = state.lastChange
+  if (!c) return null
+  if (state.anonymous) return c.anonymous ? c : null
+  return !c.anonymous && c.customerId === id ? c : null
 }
 
 function activeScenario() {
@@ -886,8 +1446,25 @@ function decide() {
     }
   }
 
+  if (hasInsight(id, 'heat_pump_detected')) {
+    return { nbo: OFFERS.varmepump, nba: state.newsletter[id] ? null : newsletterNba(), rule: 'Lastprofilen visar värmepump → värmepumpserbjudande', segments: segs }
+  }
+
+  if (s.ev >= 0.6 && owns(id, 'Kvartspris + Smartladdning')) {
+    return {
+      nbo: null,
+      nba: state.newsletter[id] ? null : newsletterNba(),
+      rule: 'EV ≥ 0,6 men kunden äger redan Kvartspris + Smartladdning → NBO undertrycks',
+      segments: segs,
+    }
+  }
+
   if (s.ev >= 0.6 && !owns(id, 'Kvartspris + Smartladdning')) {
     return { nbo: OFFERS.bundle, nba: state.newsletter[id] ? null : newsletterNba(), rule: 'EV-benägenhet ≥ 0,6 → Kvartspris + Smartladdning', segments: segs }
+  }
+
+  if (s.solar >= 0.7 && !owns(id, 'Solceller')) {
+    return { nbo: OFFERS.solar, nba: state.newsletter[id] ? null : newsletterNba(), rule: 'Solintresse ≥ 0,7 → solcellsanalys', segments: segs }
   }
 
   if (s.green >= 0.7 && !owns(id, 'Rörligt elpris')) {
@@ -992,7 +1569,7 @@ function renderSite() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
             ${inboxCount() ? `<span class="bell-badge">${inboxCount()}</span>` : ''}
           </button>
-          <span class="user-pill">${esc(p.name)}</span><button class="login-btn ghost" data-action="toggle-login">Logga ut</button>`
+          <button class="profile-link" data-nav="profile">Min profil</button><span class="user-pill">${esc(p.name)}</span><button class="login-btn ghost" data-action="toggle-login">Logga ut</button>`
           : `<button class="login-btn" data-action="toggle-login">Logga in</button>`}
       </div>
     </header>
@@ -1046,7 +1623,7 @@ function renderSite() {
             <a href="#" data-nav="architecture">Arkitektur</a>
           </div>
         </div>
-        <p style="font-size:11px;margin-top:24px">© 2024 Hall Energy Nordics · Personaliseringsprototyp v2.1 · Arkitekturdemo. Inte ett riktigt kommersiellt erbjudande.</p>
+        <p style="font-size:11px;margin-top:24px">© 2024 Hall Energy Nordics · Personaliseringsprototyp v2.3.0 · Arkitekturdemo. Inte ett riktigt kommersiellt erbjudande.</p>
       </div>
     </footer>`
 }
@@ -1059,6 +1636,7 @@ function renderView() {
     case 'varmepump': return renderVarmepump()
     case 'smarta-tjanster': return renderSmarta()
     case 'inbox': return renderInbox()
+    case 'profile': return renderProfile()
     case 'architecture': return renderArchitecture()
     default: return renderHome()
   }
@@ -1123,7 +1701,7 @@ function renderOfferBlock() {
 }
 
 function modelLabel(k) {
-  return { ev: 'EV-benägenhet', churn: 'Churn-risk', green: 'Grönbenägenhet', solar: 'Solintresse' }[k] || k
+  return SCORE_META[k]?.label || k
 }
 
 function nboSlug() {
@@ -1221,14 +1799,431 @@ function renderVarmepump() {
 }
 
 function renderSmarta() {
+  const solarNbo = decide().nbo?.id === 'solar'
   return `${renderHero('Smarta tjänster', 'Få koll på förbrukningen och styr energin hemma.')}
     <section class="section"><div class="page">
       <h2>Smarta tjänster</h2><p class="sub">Enkla verktyg som gör hemmet smartare.</p>
       <div class="cards">
         <div class="card"><h3>Smart värmestyrning</h3><div class="price">Kostnadsfritt</div><ul><li>Styr värmen efter elpris</li><li>Spara energi automatiskt</li></ul><div class="cta"><button data-nav="smarta-tjanster">Aktivera</button></div></div>
         <div class="card"><h3>Energikoll</h3><div class="price">Kostnadsfritt</div><ul><li>Se förbrukning per timme</li><li>Få larm vid avvikelser</li></ul><div class="cta"><button data-nav="smarta-tjanster">Läs mer</button></div></div>
+        <div class="card ${solarNbo ? 'nbo' : ''}">
+          ${solarNbo ? '<span class="nbo-badge">⭐ Rekommenderas för dig</span>' : ''}
+          <span class="badge">Kostnadsfri analys</span>
+          <h3>Solcellsanalys</h3><div class="price">0 kr</div>
+          <ul><li>Tak, läge och förbrukning</li><li>Beräknad besparing och batteribehov</li></ul>
+          <div class="cta"><button data-nav="smarta-tjanster">Boka analys</button></div>
+        </div>
       </div>
     </div></section>`
+}
+
+// ── Rendering: customer profile (segments, scoring & rationale) ───────────
+function renderChangeFacts(c) {
+  const facts = []
+  Object.entries(c.scores || {}).forEach(([key, d]) => {
+    facts.push(`<span class="change-chip score">${esc(SCORE_META[key]?.short || key)} ${pct(d.from)} → ${pct(d.to)}</span>`)
+  })
+  ;(c.segmentsAdded || []).forEach((s) => facts.push(`<span class="change-chip seg">+ ${esc(s)}</span>`))
+  ;(c.segmentsRemoved || []).forEach((s) => facts.push(`<span class="change-chip removed">− ${esc(s)}</span>`))
+  ;(c.holdingsAdded || []).forEach((h) => facts.push(`<span class="change-chip hold">+ ${esc(h)}</span>`))
+  if (c.newsletterChanged) facts.push('<span class="change-chip">Nyhetsbrev uppdaterat</span>')
+  if (c.decisionChanged) facts.push('<span class="change-chip decision">Beslut uppdaterat</span>')
+  if (!facts.length) {
+    ;(c.signals || []).forEach((s) => {
+      const meta = SIGNAL_META[s]
+      if (meta) facts.push(`<span class="change-chip">${esc(meta.label)}</span>`)
+    })
+  }
+  if (!facts.length) facts.push('<span class="change-chip">Profilen uppdaterad</span>')
+  return facts.join('')
+}
+
+function renderChangeBanner(c) {
+  return `<div class="change-banner">
+    <div class="change-head">
+      <span class="change-kicker">SENASTE SCENARIOSTEG</span>
+      <b>${esc(c.stepLabel)}</b>
+      <span class="change-time">${esc(c.time)}</span>
+    </div>
+    <div class="change-facts">${renderChangeFacts(c)}</div>
+    ${c.notes?.length ? `<p class="change-note">${c.notes.map(esc).join(' · ')}</p>` : ''}
+  </div>`
+}
+
+function renderProfileScore(key, id, scores, profile, change) {
+  const meta = SCORE_META[key]
+  const value = scores[key] ?? 0
+  const delta = change?.scores?.[key]
+  const baseline = profile.scores?.[key] ?? 0
+  const marker = meta.threshold != null
+    ? `<i class="score-marker" style="left:${meta.threshold * 100}%" title="Tröskel ${pct(meta.threshold)}"></i>`
+    : ''
+  const drivers = (SCORE_DRIVERS[key] || []).map((d) => `
+    <div class="driver">
+      <span>${esc(d.label)}</span>
+      <span class="driver-bar"><i style="width:${Math.round(d.weight * 100)}%;background:${meta.color}"></i></span>
+      <b>${Math.round(d.weight * 100)}%</b>
+    </div>`).join('')
+  return `<div class="score-card ${delta ? 'changed' : ''}">
+    <div class="score-head"><span>${esc(meta.label)}</span><b>${pct(value)}</b></div>
+    <div class="score-sub">${delta
+      ? `<span class="score-delta">↑ ${pct(delta.from)} → ${pct(delta.to)} i senaste steget</span>`
+      : `Baseline ${pct(baseline)}`}</div>
+    <div class="score-meter">${marker}<span class="score-fill" style="width:${pct(value)};background:${meta.color}"></span></div>
+    <p class="score-desc">${esc(meta.desc)}</p>
+    <p class="score-evidence"><b>Varför:</b> ${esc(profile.evidence?.[key] || meta.evidence)}</p>
+    <p class="score-threshold">${esc(meta.thresholdLabel)}</p>
+    <div class="driver-list">${drivers}</div>
+  </div>`
+}
+
+function renderProfileRule(e, change) {
+  const added = change?.segmentsAdded?.includes(e.label)
+  const removed = change?.segmentsRemoved?.includes(e.label)
+  return `<div class="rule ${e.active ? 'on' : ''} ${added ? 'is-new' : ''}">
+    <div class="rule-top">
+      <span class="rule-dot"></span><b>${esc(e.label)}</b>
+      <span class="rule-state ${e.active ? 'on' : 'off'}">${e.active ? 'AKTIV' : 'EJ AKTIV'}</span>
+      ${added ? '<span class="rule-flag">NY</span>' : ''}
+      ${removed ? '<span class="rule-flag removed">BORTTAGEN</span>' : ''}
+    </div>
+    <p class="rule-threshold">${esc(e.threshold)}</p>
+    <p class="rule-now">${esc(e.now)}</p>
+  </div>`
+}
+
+function renderProfileSignals(id, anonymous, change) {
+  const list = profileSignals(id, anonymous)
+  if (!list.length) return '<p class="empty-note">Inga signaler ännu.</p>'
+  return `<div class="signal-list">${list.map((s) => {
+    const fresh = change && s.scenarioKey === change.scenarioKey && s.stepIndex === change.stepIndex
+    return `<div class="signal ${fresh ? 'new' : ''}">
+      <span class="signal-dot"></span>
+      <div class="signal-body"><b>${esc(s.label)}</b><span>${esc(s.source)}${s.impact ? ` · ${esc(s.impact)}` : ''}</span></div>
+      ${s.time ? `<time>${esc(s.time)}</time>` : ''}
+    </div>`
+  }).join('')}</div>`
+}
+
+function renderProfileHoldings(id, profile, anonymous) {
+  const holdings = holdingsOf(id)
+  const rows = [
+    ['Identitet', anonymous ? 'Anonym cookie' : (state.loggedIn ? 'Inloggad kund' : 'Känd men utloggad')],
+    ['Elavtal', anonymous ? '–' : tariffName(profile.tariff)],
+    ['Innehav', holdings.length ? holdings.join(', ') : 'Inga'],
+    ['Personalisering', state.personalization ? 'På' : 'Av'],
+    ['Nyhetsbrev', state.newsletter[id] ? 'Ja' : 'Nej'],
+    ['Kanaler', anonymous ? 'Webb (nödvändiga cookies)' : 'Webb, inkorg, e-post, SMS, push'],
+    ['Samtycke', anonymous ? 'Endast nödvändiga cookies' : 'Personalisering + kanalval enligt profil'],
+  ]
+  return `<div class="kv-list">${rows.map(([k, v]) => `<div class="kv"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>`
+}
+
+function offerLabel(offer) {
+  if (!offer) return 'Inget erbjudande'
+  if (offer.id === 'green') return 'Rörligt elpris (fossilfri)'
+  if (offer.id === 'retention') return 'Retention (Fast elpris)'
+  return offer.name
+}
+
+function decisionCandidates(d) {
+  const id = state.customerId
+  const known = !!id && !state.anonymous
+  const s = scoresOf(id || 'anon', state.anonymous)
+  const ownsBundle = known && owns(id, 'Kvartspris + Smartladdning')
+  const ownsGreen = known && owns(id, 'Rörligt elpris')
+  const ownsSolar = known && owns(id, 'Solceller')
+  const heatPump = known && hasInsight(id, 'heat_pump_detected')
+  const chosenNbo = d.nbo?.id || null
+  const chosenNba = d.nba?.type || null
+  const rows = []
+  const add = (type, name, status, reason) => rows.push({ type, name, status, reason })
+
+  const gate = !known
+    ? 'Anonym besökare – endast beteendesignaler'
+    : !state.personalization
+      ? 'Personalisering avstängd'
+      : state.outage
+        ? 'Pågående avbrott – kommersiella erbjudanden stoppas'
+        : !state.loggedIn
+          ? 'Utloggad – ingen identifierad kund'
+          : s.churn >= 0.7
+            ? 'Churn ≥ 70% – retention prioriteras'
+            : null
+
+  // NBO: EV package
+  let bundleStatus = 'not_selected'
+  let bundleReason = `EV ${pct(s.ev)} < 60%`
+  if (!known) {
+    if (s.ev >= 0.6) {
+      bundleStatus = 'chosen'
+      bundleReason = `Anonyma EV-signaler ${pct(s.ev)} ≥ 60%`
+    }
+  } else if (ownsBundle) {
+    bundleStatus = 'suppressed'
+    bundleReason = 'Kunden äger redan Kvartspris + Smartladdning'
+  } else if (gate) {
+    bundleStatus = 'suppressed'
+    bundleReason = gate
+  } else if (chosenNbo === 'bundle') {
+    bundleStatus = 'chosen'
+    bundleReason = s.ev >= 0.6
+      ? `EV ${pct(s.ev)} ≥ 60% och paketet ägs inte`
+      : `Profilbaserad default för ${profileFor(id).name}`
+  } else if (s.ev >= 0.6) {
+    bundleStatus = 'not_selected'
+    bundleReason = chosenNbo === 'varmepump'
+      ? 'Värmepumpssignalen har högre prioritet'
+      : chosenNbo === 'solar'
+        ? 'Solpotentialen har högre prioritet'
+        : 'EV-regeln passerar men ett annat beslut valdes'
+  }
+  add('NBO', 'Kvartspris + Smartladdning', bundleStatus, bundleReason)
+
+  // NBO: green offer
+  let greenStatus = 'not_selected'
+  let greenReason = `Green ${pct(s.green)} < 70%`
+  if (!known) {
+    greenStatus = 'suppressed'
+    greenReason = 'Anonym besökare – grönt erbjudande kräver profil'
+  } else if (ownsGreen) {
+    greenStatus = 'suppressed'
+    greenReason = 'Kunden äger redan rörligt elpris'
+  } else if (state.outage) {
+    greenStatus = 'suppressed'
+    greenReason = 'Pågående avbrott – kommersiella erbjudanden stoppas'
+  } else if (!state.personalization) {
+    greenStatus = 'suppressed'
+    greenReason = 'Personalisering avstängd'
+  } else if (!state.loggedIn) {
+    greenStatus = 'suppressed'
+    greenReason = 'Utloggad – ingen identifierad kund'
+  } else if (s.churn >= 0.7) {
+    greenStatus = 'suppressed'
+    greenReason = 'Churn ≥ 70% – grönt erbjudande exkluderas'
+  } else if (chosenNbo === 'green') {
+    greenStatus = 'chosen'
+    greenReason = s.green >= 0.7
+      ? `Green ${pct(s.green)} ≥ 70% och kunden äger inte rörligt`
+      : `Profilbaserad default för ${profileFor(id).name}`
+  } else if (chosenNbo === 'bundle') {
+    greenStatus = 'not_selected'
+    greenReason = 'EV-paketet har högre prioritet'
+  } else if (s.green >= 0.7) {
+    greenStatus = 'not_selected'
+    greenReason = chosenNbo === 'solar'
+      ? 'Solpotentialen har högre prioritet'
+      : chosenNbo === 'varmepump'
+        ? 'Värmepumpen har högre prioritet'
+        : 'Green-regeln passerar men ett annat beslut valdes'
+  }
+  add('NBO', 'Rörligt elpris (fossilfri)', greenStatus, greenReason)
+
+  // NBO: solar analysis
+  let solarStatus = 'not_selected'
+  let solarReason = `Solintresse ${pct(s.solar)} < 70%`
+  if (!known) {
+    solarStatus = 'suppressed'
+    solarReason = 'Anonym besökare – solpotential kräver profil'
+  } else if (ownsSolar) {
+    solarStatus = 'suppressed'
+    solarReason = 'Kunden äger redan solceller'
+  } else if (gate) {
+    solarStatus = 'suppressed'
+    solarReason = gate
+  } else if (chosenNbo === 'solar') {
+    solarStatus = 'chosen'
+    solarReason = `Solintresse ${pct(s.solar)} ≥ 70% och kunden äger inte solceller`
+  } else if (s.solar >= 0.7) {
+    solarStatus = 'not_selected'
+    solarReason = chosenNbo === 'bundle'
+      ? 'EV-paketet har högre prioritet'
+      : chosenNbo === 'green'
+        ? 'Green-erbjudandet har högre prioritet'
+        : chosenNbo === 'varmepump'
+          ? 'Värmepumpen har högre prioritet'
+          : 'Solregeln passerar men ett annat beslut valdes'
+  }
+  add('NBO', 'Solcellsanalys', solarStatus, solarReason)
+
+  // NBO: heat pump, either as a disaggregation insight or the persona default
+  const defaults = { eva: OFFERS.laddbox, karin: OFFERS.varmepump, jonas: OFFERS.bundle, lars: OFFERS.retention, anders: OFFERS.green }
+  if (known && (heatPump || chosenNbo === 'varmepump' || defaults[id]?.id === 'varmepump')) {
+    let hpStatus = 'not_selected'
+    let hpReason = 'Profilbaserad default, men EV-paketet har högre prioritet'
+    if (chosenNbo === 'varmepump') {
+      hpStatus = 'chosen'
+      hpReason = heatPump
+        ? 'Lastprofilen visar värmepump (NILM)'
+        : `Profilbaserad default för ${profileFor(id).name}`
+    } else if (gate) {
+      hpStatus = 'suppressed'
+      hpReason = gate
+    } else if (heatPump) {
+      hpReason = 'Värmepumpssignalen finns men ett annat beslut valdes'
+    }
+    add('NBO', 'Värmepumpsrabatt upp till 2 000 kr', hpStatus, hpReason)
+  }
+
+  // Persona default offer, when it is not already represented by EV/green/solar/heat pump
+  if (known && d.nbo && !['bundle', 'green', 'solar', 'varmepump'].includes(d.nbo.id)) {
+    add('NBO', offerLabel(d.nbo), 'chosen', `Profilbaserad default för ${profileFor(id).name}`)
+  } else if (known && defaults[id] && !['bundle', 'green', 'solar', 'varmepump'].includes(defaults[id].id)) {
+    add('NBO', offerLabel(defaults[id]), gate ? 'suppressed' : 'not_selected',
+      gate || 'Profilbaserad default, men en högre regel valdes')
+  }
+
+  // NBA: retention
+  if (known && s.churn >= 0.7) {
+    add('NBA', 'Retention', chosenNba === 'retention' ? 'chosen' : 'suppressed',
+      chosenNba === 'retention' ? `Churn ${pct(s.churn)} ≥ 70%` : (gate || 'Högre prioriterad NBA'))
+  } else {
+    add('NBA', 'Retention', chosenNba === 'retention' ? 'chosen' : 'not_selected',
+      chosenNba === 'retention' ? `Churn ${pct(s.churn)} ≥ 70%` : `Churn ${pct(s.churn)} < 70%`)
+  }
+
+  // NBA: outage information
+  if (known && state.outage) {
+    add('NBA', 'Driftinformation', chosenNba === 'outage' ? 'chosen' : 'suppressed',
+      chosenNba === 'outage' ? 'Pågående avbrott – driftinformation prioriteras' : 'Avbrottet matchas mot område')
+  } else {
+    add('NBA', 'Driftinformation', chosenNba === 'outage' ? 'chosen' : 'not_selected',
+      chosenNba === 'outage' ? 'Pågående avbrott' : 'Inget aktivt avbrott')
+  }
+
+  // NBA: newsletter
+  if (chosenNba === 'newsletter') {
+    add('NBA', 'Nyhetsbrev', 'chosen', 'Kunden prenumererar inte och ingen högre prioriterad NBA är aktiv')
+  } else if (known && state.newsletter[id]) {
+    add('NBA', 'Nyhetsbrev', 'suppressed', 'Kunden prenumererar redan')
+  } else if (gate) {
+    add('NBA', 'Nyhetsbrev', 'suppressed', gate)
+  } else if (chosenNba) {
+    add('NBA', 'Nyhetsbrev', 'suppressed', `Högre prioriterad NBA: ${d.nba?.headline || chosenNba}`)
+  } else {
+    add('NBA', 'Nyhetsbrev', 'not_selected', 'Ingen NBA vald i detta läge')
+  }
+
+  return rows
+}
+
+function renderDecisionCandidate(row) {
+  const label = row.status === 'chosen' ? 'VALD' : row.status === 'suppressed' ? 'STOPPAD' : 'EJ VALD'
+  return `<div class="trace-row ${row.status}">
+    <span class="trace-type ${row.type.toLowerCase()}">${row.type}</span>
+    <div class="trace-main"><b>${esc(row.name)}</b><p>${esc(row.reason)}</p></div>
+    <span class="trace-status ${row.status}">${label}</span>
+  </div>`
+}
+
+function renderProfileDecision(d, id, anonymous) {
+  const nbo = d.nbo
+  const nba = d.nba
+  const s = scoresOf(id, anonymous)
+  const reasons = []
+  if (!state.personalization) reasons.push('personalisering avstängd')
+  if (state.outage) reasons.push('pågående avbrott')
+  if (!state.loggedIn) reasons.push('utloggad')
+  if (s.churn >= 0.7) reasons.push('churn ≥ 70%')
+  if (s.ev >= 0.6 && owns(id, 'Kvartspris + Smartladdning')) reasons.push('äger redan Kvartspris + Smartladdning')
+  if (anonymous) reasons.push('ingen kundprofil')
+  return `
+    <div class="decision-row">
+      <span class="decision-tag nbo">NBO</span>
+      <div>
+        <b>${nbo ? esc(nbo.name) : 'Inget kommersiellt erbjudande'}</b>
+        <p>${nbo ? esc(nbo.headline) : 'Inget NBO i detta läge.'}</p>
+        ${nbo ? `<span class="decision-meta">${esc(nbo.product)} · ${esc(nbo.value)}</span>` : ''}
+      </div>
+    </div>
+    <div class="decision-row">
+      <span class="decision-tag nba">NBA</span>
+      <div>
+        <b>${nba ? esc(nba.headline) : 'Ingen nästa bästa åtgärd'}</b>
+        <p>${nba ? esc(nba.body) : 'Ingen NBA i detta läge.'}</p>
+      </div>
+    </div>
+    <p class="decision-rule"><b>Regel:</b> ${esc(d.rule)}</p>
+    <p class="decision-rule"><b>Segment:</b> ${d.segments?.length ? d.segments.map(esc).join(', ') : '–'}</p>
+    <p class="decision-rule"><b>Begränsningar:</b> ${reasons.length ? reasons.map(esc).join(', ') : 'inga aktiva'}</p>
+    <p class="trace-title">NBO/NBA-kandidater</p>
+    <p class="trace-order">Prövas i ordning: samtycke → avbrott → inloggning → churn → EV → green → profildefault.</p>
+    <div class="decision-trace">${decisionCandidates(d).map(renderDecisionCandidate).join('')}</div>`
+}
+
+function renderProfile() {
+  const id = state.customerId || 'anon'
+  const anonymous = state.anonymous || !PERSONAS[id]
+  const profile = profileFor(id, anonymous)
+  const scores = scoresOf(id, anonymous)
+  const evals = segmentEvaluations(id, anonymous)
+  const change = lastChangeFor(id)
+  const d = decide()
+  const activeSegments = evals.filter((e) => e.active).length
+  const meta = anonymous
+    ? 'Endast cookie · ingen kundprofil'
+    : `${tariffLabel(profile.tariff)} · ${profile.usage.toLocaleString('sv-SE')} kWh/år · ${profile.housing} · ${profile.postcode}`
+
+  return `
+    <section class="profile-hero">
+      <div class="page profile-hero-inner">
+        <div>
+          <p class="profile-kicker">KUNDPROFIL · SEGMENT & SCORING</p>
+          <h1>${esc(profile.name)}</h1>
+          <p class="profile-meta">${esc(meta)}</p>
+          <div class="profile-badges">
+            <span class="pbadge ${state.loggedIn ? 'on' : ''}">${state.loggedIn ? 'Inloggad' : 'Utloggad'}</span>
+            <span class="pbadge ${state.personalization ? 'on' : 'off'}">Personalisering ${state.personalization ? 'på' : 'av'}</span>
+            ${state.outage ? '<span class="pbadge warn">Avbrott aktivt</span>' : ''}
+            ${anonymous ? '<span class="pbadge">Anonym cookie</span>' : ''}
+            <span class="pbadge">${activeSegments} aktiva segment</span>
+          </div>
+        </div>
+        <div class="profile-hero-actions">
+          ${!anonymous ? `<button class="profile-action" data-action="toggle-login">${state.loggedIn ? 'Logga ut' : 'Logga in'}</button>` : ''}
+          <button class="profile-action" data-nav="home">Till webben</button>
+        </div>
+      </div>
+    </section>
+    <section class="profile-section">
+      <div class="page">
+        ${anonymous ? '<div class="profile-note"><b>Anonym profil.</b> Underlaget är cookien och sessionens signaler. Ingen identitet, adress eller avtal är kopplat ännu.</div>' : ''}
+        ${change ? renderChangeBanner(change) : ''}
+        <div class="profile-grid">
+          <div class="profile-col">
+            <div class="profile-card">
+              <h2>Scoring per modell</h2>
+              <p class="sub">Aktuella modellvärden, trösklar och vilka faktorer som driver dem.</p>
+              <div class="score-grid">
+                ${Object.keys(SCORE_META).map((key) => renderProfileScore(key, id, scores, profile, change)).join('')}
+              </div>
+            </div>
+            <div class="profile-card">
+              <h2>Segmentregler</h2>
+              <p class="sub">Alla regler utvärderas mot profil, scoring och innehav. Nya segment markeras.</p>
+              <div class="rule-list">${evals.map((e) => renderProfileRule(e, change)).join('')}</div>
+            </div>
+          </div>
+          <div class="profile-col">
+            <div class="profile-card" id="profile-decision">
+              <h2>Beslut & varför</h2>
+              <p class="sub">NBO/NBA som beslutet landar i, med regel, begränsningar och varför.</p>
+              ${renderProfileDecision(d, id, anonymous)}
+            </div>
+            <div class="profile-card">
+              <h2>Signaler</h2>
+              <p class="sub">Bas-signaler från masterdata och händelser från scenariot.</p>
+              ${renderProfileSignals(id, anonymous, change)}
+            </div>
+            <div class="profile-card">
+              <h2>Innehav & samtycke</h2>
+              <p class="sub">Vad profilen får använda och vilka kanaler som är öppna.</p>
+              ${renderProfileHoldings(id, profile, anonymous)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>`
 }
 
 function renderInbox() {
@@ -1398,8 +2393,8 @@ function archScenarioDetail(key, scene) {
 
 function archMatrix() {
   const keys = SCENARIOS.map((s) => s.key)
-  const short = { ev_journey: 'Elbil', outage: 'Avbrott', price_compare: 'Riskzon', green_interest: 'Grönt', anon_smart: 'Anonym', anon_to_profile: 'Anon→kund' }
-  const head = `<tr><th>Förmåga</th>${SCENARIOS.map((s) => `<th title="${esc(s.title)}">${esc(short[s.key])}</th>`).join('')}</tr>`
+  const short = { ev_journey: 'Elbil', outage: 'Avbrott', price_compare: 'Riskzon', green_interest: 'Grönt', anon_smart: 'Anonym', anon_to_profile: 'Anon→kund', hidden_ev: 'Dold EV', heat_pump: 'Värmepump', solar_profile: 'Solar' }
+  const head = `<tr><th>Förmåga</th>${SCENARIOS.map((s) => `<th title="${esc(s.title)}">${esc(short[s.key] || s.title)}</th>`).join('')}</tr>`
   const body = ARCH_LAYERS.map((layer) => {
     const rows = layer.nodes
     if (!rows.length) return ''
@@ -1428,7 +2423,7 @@ function renderArchitecture() {
         <h1>Så hänger personaliseringen ihop</h1>
         <p>En referensarkitektur för retail och energi — från signal och identitet till beslut, kanal och mätning. Välj ett scenario för att se vilka förmågor och system som används.</p>
         <div class="arch-stats">
-          <span>6 scenarier</span>
+          <span>${SCENARIOS.length} scenarier</span>
           <span>${ARCH_NODE_ORDER.length} förmågor</span>
           <span>5 lager</span>
           <span>NBO + NBA</span>
@@ -1540,6 +2535,17 @@ function scenarioShort(key) {
 }
 
 // ── Rendering: dev tools ──────────────────────────────────────────────────
+function scenarioChangeSummary(scene) {
+  const c = state.lastChange
+  if (!c || c.scenarioKey !== scene.key) return ''
+  return `<div class="scenario-change-row">
+    <span class="scenario-change">Profil uppdaterad</span>
+    ${renderChangeFacts(c)}
+    <span class="scenario-decision"><b>NBO:</b> ${esc(c.decisionAfter?.nbo || 'inget')} · <b>NBA:</b> ${esc(c.decisionAfter?.nba || 'ingen')}</span>
+    <button class="profile-change-link" data-nav="profile" data-scroll="profile-decision">Visa beslut →</button>
+  </div>`
+}
+
 function renderScenarioBar() {
   const scene = activeScenario()
   if (!scene) {
@@ -1565,19 +2571,22 @@ function renderScenarioBar() {
       <span class="spacer"></span>
       <button class="arch-link" data-action="open-architecture">🧩 Arkitektur</button>
     </div>
+    ${scenarioChangeSummary(scene)}
     ${lastNotes.length ? `<p class="scenario-notes"><span class="check">✓</span> ${lastNotes.map(esc).join(' · ')}</p>` : ''}`
 }
 
 function renderPersonaBar() {
   const p = persona()
   const isAnon = state.anonymous
+  const id = state.customerId || 'anon'
+  const scores = scoresOf(id, isAnon)
+  const segs = segmentsFor(id, isAnon)
+  const products = isAnon ? [] : holdingsOf(id)
+  const change = lastChangeFor(id)
   const display = isAnon ? 'Anonym besökare' : (p ? p.name : 'Ingen persona')
   const meta = p && !isAnon
     ? `${tariffLabel(p.tariff)} · ${p.usage.toLocaleString('sv-SE')} kWh/år · ${p.housing} · ${p.postcode}`
     : isAnon ? 'Endast cookie · inga profiluppgifter' : ''
-  const scores = p && !isAnon ? state.scores[p.id] : null
-  const segs = p && !isAnon ? segmentsFor(p.id) : []
-  const products = p && !isAnon ? holdingsOf(p.id) : []
 
   return `
     <div class="persona-row">
@@ -1591,27 +2600,35 @@ function renderPersonaBar() {
       <span class="persona-name">${esc(display)}</span>
       ${meta ? `<span class="persona-meta">${esc(meta)}</span>` : ''}
       ${!isAnon ? `<button class="login-pill ${state.loggedIn && state.customerId ? 'on' : 'off'}" data-action="toggle-login">${state.loggedIn && state.customerId ? 'Logga ut' : 'Logga in'}</button>` : ''}
+      <button class="profile-btn ${change ? 'changed' : ''}" data-nav="profile">Profil${change ? ' · uppdaterad' : ''}</button>
       <span class="spacer"></span>
       <span class="toggle-wrap">Personalisering <button class="toggle ${state.personalization ? '' : 'off'}" data-action="toggle-personalization" aria-label="Personalisering"></button> <b style="color:#EA1B0A">${state.personalization ? 'ON' : 'OFF'}</b></span>
       <button class="reset-btn" data-action="reset">Återställ</button>
     </div>
-    ${scores ? `<div class="persona-detail">
+    <div class="persona-detail">
       <div>
         <div class="model-grid">
-          ${model('EV', scores.ev, '#3B82F6')}
-          ${model('Churn', scores.churn, '#EA1B0A')}
-          ${model('Green', scores.green, '#22C55E')}
-          ${model('Solar', scores.solar, '#F59E0B')}
+          ${model('EV', scores.ev, '#3B82F6', { delta: change?.scores?.ev })}
+          ${model('Churn', scores.churn, '#EA1B0A', { delta: change?.scores?.churn })}
+          ${model('Green', scores.green, '#22C55E', { delta: change?.scores?.green })}
+          ${model('Solar', scores.solar, '#F59E0B', { delta: change?.scores?.solar })}
         </div>
       </div>
       <span class="spacer"></span>
-      <div class="chips">${segs.map((s) => `<span class="chip">${esc(s)}</span>`).join('')}</div>
+      <div class="chips">${segs.map((s) => `<span class="chip ${change?.segmentsAdded?.includes(s) ? 'new' : ''}">${esc(s)}</span>`).join('')}</div>
       <div class="chips">${products.map((s) => `<span class="chip prod">${esc(s)}</span>`).join('')}</div>
-    </div>` : ''}`
+    </div>`
 }
 
-function model(label, value, color) {
-  return `<div class="model"><span style="width:44px">${label}</span><span class="track"><span class="fill" style="width:${pct(value)};background:${color}"></span></span><b>${pct(value)}</b></div>`
+function model(label, value, color, opts = {}) {
+  const delta = opts.delta
+  const diff = delta ? Math.round((delta.to - delta.from) * 100) : 0
+  return `<div class="model ${delta ? 'changed' : ''}" ${delta ? `title="${pct(delta.from)} → ${pct(delta.to)}"` : ''}>
+    <span style="width:44px">${label}</span>
+    <span class="track"><span class="fill" style="width:${pct(value)};background:${color}"></span></span>
+    <b>${pct(value)}</b>
+    ${delta ? `<span class="model-delta">${diff >= 0 ? '+' : '−'}${Math.abs(diff)}</span>` : ''}
+  </div>`
 }
 
 // ── Render root ───────────────────────────────────────────────────────────
@@ -1646,10 +2663,17 @@ function startScenario(key) {
   state.toast = null
   state.view = 'home'
   state.explain = false
+  state.lastChange = null
+  state.signalLog = {}
+  state.personaMenu = false
   if (scene.anonymous) {
     state.anonymous = true
+    state.loggedIn = false
     state.customerId = scene.persona || 'anon'
-    state.scores[state.customerId] = { ev: 0, churn: 0, green: 0, solar: 0 }
+    state.scores[state.customerId] = { ...ZERO_SCORES }
+    state.holdings[state.customerId] = []
+    state.newsletter[state.customerId] = false
+    state.outage = false
   } else if (scene.persona) {
     selectPersona(scene.persona, true)
     state.active = { key, stepIdx: 0 }
@@ -1664,6 +2688,7 @@ function applyStep() {
   const step = scene.steps[i]
   if (!step) return
   const a = step.apply || {}
+  const before = snapshotState()
 
   if (a.anonymous) {
     state.anonymous = true
@@ -1705,17 +2730,21 @@ function applyStep() {
       state.toast = `${first} har fått ett nytt meddelande i din inkorg.`
     }
   }
+  addSignals(state.customerId || 'anon', step.signals, scene, i)
+  const after = snapshotState()
+  state.lastChange = diffState(before, after, scene, step, i)
   state.active.stepIdx = i + 1
-  if (step.page) state.view = step.page
+  if (step.page && state.view !== 'profile') state.view = step.page
   render({ top: true })
 }
 
 function prevStep() {
   if (!state.active) return
+  state.lastChange = null
   state.active.stepIdx = Math.max(0, state.active.stepIdx - 1)
   const scene = activeScenario()
   const prev = scene.steps[state.active.stepIdx - 1]
-  if (prev && prev.page) state.view = prev.page
+  if (prev && prev.page && state.view !== 'profile') state.view = prev.page
   render({ top: true })
 }
 
@@ -1734,6 +2763,8 @@ function selectPersona(id, keepActive = false) {
   state.holdings[id] = [...PERSONAS[id].holdings]
   state.newsletter[id] = false
   state.outage = false
+  state.lastChange = null
+  state.signalLog[id] = []
   if (!keepActive) state.active = null
   state.view = 'home'
   state.explain = false
@@ -1752,6 +2783,8 @@ function resetAll() {
   state.outage = false
   state.active = null
   state.messages = []
+  state.signalLog = {}
+  state.lastChange = null
   state.personaMenu = false
   state.explain = false
   state.toast = null
@@ -1766,7 +2799,20 @@ document.addEventListener('click', (e) => {
   if (!el) return
 
   if (el.dataset.start !== undefined) { startScenario(el.dataset.start); return }
-  if (el.dataset.nav !== undefined) { e.preventDefault(); state.view = el.dataset.nav; state.personaMenu = false; state.toast = null; render({ top: true }); return }
+  if (el.dataset.nav !== undefined) {
+    e.preventDefault()
+    state.view = el.dataset.nav
+    state.personaMenu = false
+    state.toast = null
+    render({ top: true })
+    if (el.dataset.scroll) {
+      window.requestAnimationFrame(() => {
+        const target = document.getElementById(el.dataset.scroll)
+        if (target) target.scrollIntoView({ block: 'start', behavior: 'smooth' })
+      })
+    }
+    return
+  }
   if (el.dataset.select !== undefined) { selectPersona(el.dataset.select); return }
   if (el.dataset.archScenario !== undefined) {
     state.archScenario = el.dataset.archScenario
@@ -1799,6 +2845,9 @@ document.addEventListener('click', (e) => {
     state.personaMenu = false
     state.active = null
     state.view = 'home'
+    state.lastChange = null
+    state.signalLog = {}
+    state.outage = false
     render({ top: true })
     return
   }
