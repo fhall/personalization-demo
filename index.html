@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <!--
-  E.ON personalisation — stand-alone demo
-  Version: 2.0.0 (arkitektur)
+  Hall Energy personalisation — stand-alone demo
+  Version: 2.1.0 (rebrand + referensarkitektur)
   Single file · no server · no dependencies · no network calls
+  Previous releases archived in versions/
 -->
 <html lang="sv">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>E.ON Personalisering – stand-alone demo</title>
+<title>Hall Energy Personalisering – stand-alone demo</title>
 <style>
   :root {
     --red: #EA1B0A;
@@ -41,7 +42,7 @@
   .utility a { font-size: 12px; color: #555; text-decoration: none; }
   .utility a:hover { color: var(--red); }
   .nav-inner { max-width: 72rem; margin: 0 auto; padding: 0 16px; height: 56px; display: flex; align-items: center; gap: 12px; }
-  .logo { font-weight: 900; font-size: 26px; font-style: italic; letter-spacing: -1px; color: var(--red); text-decoration: none; margin-right: 20px; }
+  .logo { font-weight: 900; font-size: 22px; letter-spacing: -.6px; color: var(--red); text-decoration: none; margin-right: 20px; }
   .main-nav { display: flex; gap: 4px; flex: 1; }
   .main-nav a { font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 8px; text-decoration: none; }
   .main-nav a:hover, .main-nav a.active { background: #F3F4F6; }
@@ -147,9 +148,15 @@
   .outage-banner strong { display: block; font-size: 14px; }
   .outage-banner span { font-size: 12px; color: rgba(255,255,255,.75); }
   .outage-banner button { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); color: #fff; border-radius: 999px; padding: 7px 14px; font-size: 12px; font-weight: 600; }
+  .outage-anon { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; max-width: 360px; }
+  .outage-why { font-size: 11.5px; color: rgba(255,255,255,.85); }
+  .outage-why summary { cursor: pointer; font-weight: 600; color: #fff; list-style: none; }
+  .outage-why summary::-webkit-details-marker { display: none; }
+  .outage-why summary::before { content: 'ⓘ '; }
+  .outage-why p { margin: 6px 0 0; line-height: 1.5; color: rgba(255,255,255,.82); }
 
   .site-footer { background: #1A1A1A; color: rgba(255,255,255,.45); padding: 40px 0 150px; }
-  .site-footer .logo { color: var(--red); font-size: 20px; }
+  .site-footer .logo { color: var(--red); font-size: 18px; }
 
   /* ── Channel rail ───────────────────────────────────────────────────── */
   .rail {
@@ -212,7 +219,7 @@
   .step-btn { background: var(--red); color: #fff; border: 0; border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
   .ghost-btn { background: rgba(255,255,255,.1); color: rgba(255,255,255,.75); border: 0; border-radius: 999px; padding: 4px 10px; font-size: 12px; }
   .icon-btn { background: none; border: 0; color: rgba(255,255,255,.5); font-size: 14px; }
-  .scenario-notes { margin: 6px 0 0; font-size: 11px; color: rgba(220,230,255,.6); line-height: 1.5; }
+  .scenario-notes { margin: 8px 0 0; font-size: 13px; color: rgba(226,236,255,.78); line-height: 1.6; }
   .scenario-notes .check { color: #4ADE80; font-weight: 700; }
 
   .persona-bar { background: #0F0F0F; color: #fff; padding: 10px 16px 12px; border-top: 1px solid rgba(255,255,255,.08); }
@@ -332,7 +339,10 @@
 
   @media (max-width: 720px) {
     .hero h1 { font-size: 32px; }
-    .main-nav { overflow-x: auto; }
+    .nav-inner { height: auto; flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; row-gap: 4px; }
+    .logo { font-size: 18px; margin-right: auto; }
+    .main-nav { order: 5; flex: 1 0 100%; overflow-x: auto; }
+    .main-nav a { white-space: nowrap; }
     .offer-card h2 { font-size: 24px; }
     .offer-card .kicker, .offer-card .body { padding-left: 20px; padding-right: 20px; }
     .matrix th, .matrix td { padding-left: 12px; padding-right: 12px; }
@@ -350,7 +360,7 @@
 
 <script>
 /* ════════════════════════════════════════════════════════════════════════
-   E.ON personalisation demo — stand-alone, hardcoded, no server.
+   Hall Energy personalisation demo — stand-alone, hardcoded, no server.
    Open this file directly in a browser. Everything lives in this one file.
    ════════════════════════════════════════════════════════════════════════ */
 
@@ -489,8 +499,8 @@ const SCENARIOS = [
         notes: ['Klick registreras (offer_click)', 'Paketet läggs till i kundens innehav', 'NBO undertrycks – kunden har redan produkten', 'Välkomstmeddelande till inkorg + e-postkampanj'],
         apply: { holding: 'Kvartspris + Smartladdning', scores: { ev: 0.9 } },
         messages: [
-          { channel: 'sms', body: 'Hej Jonas! Ditt avtal för Kvartspris + Smartladdning är aktivt. Så här aktiverar du din laddbox: eon.se/smartladdning' },
-          { channel: 'email', subject: 'Välkommen till Kvartspris + Smartladdning', body: 'Hej Jonas! Ditt avtal är på plats. Nästa steg: hämta din Zaptec Go och koppla den till E.ON Smartladdning för att ladda på de billigaste timmarna.' },
+          { channel: 'sms', body: 'Hej Jonas! Ditt avtal för Kvartspris + Smartladdning är aktivt. Så här aktiverar du din laddbox: hallenergy.se/smartladdning' },
+          { channel: 'email', subject: 'Välkommen till Kvartspris + Smartladdning', body: 'Hej Jonas! Ditt avtal är på plats. Nästa steg: hämta din Zaptec Go och koppla den till Hall Energy Smartladdning för att ladda på de billigaste timmarna.' },
           { channel: 'push', subject: 'Din laddbox är på väg', body: 'Vi har skickat din Zaptec Go. Följ leveransen i appen.' },
           { channel: 'inbox', subject: 'Välkommen, Jonas!', body: 'Ditt paket Kvartspris + Smartladdning är aktivt. Se din startguide i Mina sidor.' },
         ],
@@ -507,10 +517,10 @@ const SCENARIOS = [
       },
       {
         label: 'Strömavbrott rapporteras', page: 'home',
-        notes: ['Incident registreras: outage_reported (elnät: lokalt)', 'Kundprofilen uppdateras med avbrottpåverkan', 'NBA sätts till driftinformation → banner / inkorg / sms', 'Alla kommersiella erbjudanden undertrycks'],
+        notes: ['Incident registreras: outage_reported (elnät: lokalt)', 'Utloggad kund: avbrottet matchas mot ungefärlig plats (IP) – därför visas områdesbannern', 'Inloggning krävs för att koppla avbrottet till avtal och adress', 'Kundprofilen uppdateras med avbrottpåverkan', 'NBA sätts till driftinformation → banner / inkorg / sms', 'Alla kommersiella erbjudanden undertrycks'],
         apply: { outage: true },
         messages: [
-          { channel: 'sms', body: 'Ett strömavbrott har registrerats i ditt område. Beräknad återställning om ca 2 timmar. Status: eon.se/driftsinformation' },
+          { channel: 'sms', body: 'Ett strömavbrott har registrerats i ditt område. Beräknad återställning om ca 2 timmar. Status: hallenergy.se/driftsinformation' },
           { channel: 'push', subject: 'Strömavbrott i ditt område', body: 'Karin, vi arbetar på ett avbrott i ditt lokala elnät. Beräknad återställning: ca 2 timmar.' },
           { channel: 'inbox', subject: 'Strömavbrott i ditt område', body: 'Vi arbetar på avbrottet i ditt lokala elnät. Beräknad återställning: ca 2 timmar. Du får en ny uppdatering när strömmen är tillbaka.' },
         ],
@@ -599,8 +609,8 @@ const SCENARIOS = [
         notes: ['Anonyma signaler kopplas till profilen (Anders)', 'Anders tecknar ett elavtal (Fast elpris) – kan nu logga in', 'Segment beräknas om – Anders hamnar i ev_prospects', 'Beslut skapas med nytt NBO/NBA'],
         apply: { identify: 'anders', login: true, holding: 'Fast elpris', scores: { ev: 0.7 } },
         messages: [
-          { channel: 'email', subject: 'Välkommen till E.ON — ditt Fast elpris är aktivt', body: 'Hej Anders! Tack för att du tecknade ditt elavtal hos oss. Vi startar leveransen så snart som möjligt.' },
-          { channel: 'push', subject: 'Välkommen till E.ON!', body: 'Ditt elavtal (Fast elpris) är registrerat. Välkommen!' },
+          { channel: 'email', subject: 'Välkommen till Hall Energy — ditt Fast elpris är aktivt', body: 'Hej Anders! Tack för att du tecknade ditt elavtal hos oss. Vi startar leveransen så snart som möjligt.' },
+          { channel: 'push', subject: 'Välkommen till Hall Energy!', body: 'Ditt elavtal (Fast elpris) är registrerat. Välkommen!' },
           { channel: 'inbox', subject: 'Välkommen, Anders!', body: 'Ditt elavtal Fast elpris är aktivt. Se ditt pris och avtal i Mina sidor.' },
         ],
       },
@@ -613,137 +623,145 @@ const SCENARIOS = [
   },
 ]
 
-// ── Architecture: capabilities & systems behind the scenarios ─────────────
+// ── Reference architecture: retail personalisation ─────────────────────────
 const ARCH_LAYERS = [
   {
-    id: 'channels', title: 'Kundmöte & kanaler', hint: 'Där kunden ser oss',
+    id: 'engagement', title: 'Kundmöten & kanaler', hint: 'Där personaliseringen levereras',
     color: '#2563EB', soft: '#EFF6FF',
-    nodes: ['web', 'inbox', 'sms', 'email', 'push'],
+    nodes: ['web', 'inbox', 'email', 'sms', 'push'],
   },
   {
     id: 'experience', title: 'Upplevelse & orkestrering', hint: 'Det kunden möter',
     color: '#EA1B0A', soft: '#FFF1F0',
-    nodes: ['nbo', 'nba', 'webInbox', 'journey', 'admin'],
+    nodes: ['surfaces', 'journey', 'content', 'experimentation'],
   },
   {
-    id: 'decision', title: 'Beslut & profil', hint: 'Det som avgör vad som visas',
+    id: 'decision', title: 'Beslut & intelligens', hint: 'Det som avgör vad som visas',
     color: '#D97706', soft: '#FFFBEB',
-    nodes: ['signals', 'scoring', 'segments', 'decision', 'catalog', 'router'],
+    nodes: ['decision', 'rules', 'scoring', 'segments', 'catalog', 'policy'],
   },
   {
-    id: 'systems', title: 'System & data', hint: 'Källor och masterdata',
+    id: 'data', title: 'Data & identitet', hint: 'Signaler, sanning och samtycke',
     color: '#059669', soft: '#ECFDF5',
-    nodes: ['cdp', 'contracts', 'incident', 'content', 'analytics', 'identity'],
+    nodes: ['events', 'cdp', 'identity', 'consent', 'master', 'geo'],
+  },
+  {
+    id: 'measurement', title: 'Mätning & styrning', hint: 'Lär, bevisa och styr',
+    color: '#7C3AED', soft: '#F5F3FF',
+    nodes: ['analytics', 'decisionlog', 'governance'],
   },
 ]
 
 const ARCH_NODES = {
-  web: { label: 'Webbplats', sys: 'Next.js · eon.se', icon: '🌐', desc: 'Retail-sidorna med personliga ytor, erbjudanden, NBO-badge och driftbanner.' },
-  inbox: { label: 'Inkorg', sys: 'Kanal · eon.se', icon: '📥', desc: 'Inkorg på webben. Kräver inloggning och visar erbjudanden, åtgärder och meddelanden.' },
-  sms: { label: 'SMS', sys: 'Kanal · mobil', icon: '💬', desc: 'Korta meddelanden vid avbrott och viktiga händelser.' },
-  email: { label: 'E-post', sys: 'Kanal · brevlåda', icon: '✉️', desc: 'Kampanjer, välkomstflöden och nyhetsbrev.' },
-  push: { label: 'Push', sys: 'Kanal · app', icon: '🔔', desc: 'Notiser i appen vid avbrott, leverans och uppdateringar.' },
-  nbo: { label: 'NBO-yta', sys: 'Personligt erbjudande', icon: '🎁', desc: 'Kortet på webben som visar nästa bästa erbjudande — eller undertrycks.' },
-  nba: { label: 'NBA-yta', sys: 'Rekommenderad åtgärd', icon: '💡', desc: 'Åtgärdskortet: driftinformation, retention eller nyhetsbrev.' },
-  webInbox: { label: 'Webbinkorg', sys: '/inbox', icon: '📬', desc: 'Samlar erbjudanden, åtgärder, driftstörningar och skickade meddelanden.' },
-  journey: { label: 'Scenario Studio', sys: 'Demo-orkestrering', icon: '🎬', desc: 'Scenarier och steg som driver signaler, sidbyten och utgående meddelanden.' },
-  admin: { label: 'Backoffice', sys: 'Admin', icon: '🛠️', desc: 'Kunder, avtal, erbjudanden, åtgärder och scenarier. Ingår i plattformen, inte i kundflödet.' },
-  signals: { label: 'Signalintag', sys: 'Events API', icon: '⚡', desc: 'Sidvisningar, klick, kalkylatoranvändning, inloggningar och supportkontakter.' },
-  scoring: { label: 'Scoring', sys: 'Realtid & batch', icon: '📈', desc: 'EV-benägenhet, churn-risk, grönbenägenhet och solintresse.' },
-  segments: { label: 'Segmentering', sys: 'Regelmotor', icon: '🧩', desc: 'Härledda segment som ev_prospects, churn_risk och green_affinity_high.' },
-  decision: { label: 'Beslutsmodul', sys: 'NBO / NBA', icon: '🧠', desc: 'Targeting, poängsättning, suppression, frekvenstak, fallback och variantval.' },
-  catalog: { label: 'Erbjudanden & åtgärder', sys: 'Katalog', icon: '🗂️', desc: 'Offers, actions och varianter med prioritet, målgrupp och innehåll.' },
-  router: { label: 'Meddelanderouter', sys: 'Utgående', icon: '📤', desc: 'Väljer kanal och mall, deduplicerar och levererar till inkorg, SMS, e-post och push.' },
-  cdp: { label: 'CDP / kundprofil', sys: 'Kunddata', icon: '🗄️', desc: 'Kund, samtycke, events, scores, segment, innehav och nyhetsbrev.' },
-  contracts: { label: 'Avtal & innehav', sys: 'Affärssystem', icon: '📄', desc: 'Elavtal, produkter och bindningar som styr ägande och suppression.' },
-  incident: { label: 'Drift & incidenter', sys: 'Elnät', icon: '⚠️', desc: 'Avbrottsstatus, område och beräknad återställning.' },
-  content: { label: 'Innehåll & produkter', sys: 'PIM / CMS', icon: '🏷️', desc: 'Elavtal, laddboxar, värmepumpar, texter och erbjudandevarianter.' },
-  analytics: { label: 'Analytics', sys: 'Mätning', icon: '📊', desc: 'Impressions, klick, konverteringar och omräkning av scores.' },
-  identity: { label: 'Identitet & session', sys: 'Auth & cookie', icon: '🔐', desc: 'Inloggning, anonym cookie och identify-stitching när besökaren loggar in.' },
+  web: { label: 'Webb', sys: 'Digital kanal', icon: '🌐', desc: 'Personliga sidor, erbjudandekort, meddelandecenter och driftinformation.' },
+  inbox: { label: 'Inkorg', sys: 'Meddelandecenter', icon: '📥', desc: 'Meddelanden på webben; kräver inloggning och visar erbjudanden, åtgärder och service.' },
+  email: { label: 'E-post', sys: 'Kanal', icon: '✉️', desc: 'Kampanjer, livscykelmail, välkomstflöden och nyhetsbrev.' },
+  sms: { label: 'SMS', sys: 'Kanal', icon: '💬', desc: 'Korta, tidskritiska meddelanden som avbrott och viktiga händelser.' },
+  push: { label: 'Push', sys: 'Appnotis', icon: '🔔', desc: 'Notiser i appen för avbrott, leverans och påminnelser.' },
+  surfaces: { label: 'Personliga ytor', sys: 'NBO & NBA-slots', icon: '🎯', desc: 'Platser i webb, app och inkorg där nästa bästa erbjudande eller åtgärd renderas.' },
+  journey: { label: 'Journey orchestration', sys: 'Triggers & flöden', icon: '🎬', desc: 'Triggar, väntar, väljer kanal och följer mål över tid. Exempel: Adobe Journey Optimizer, Salesforce Marketing Cloud.' },
+  content: { label: 'Innehåll & CMS', sys: 'Copy & varianter', icon: '🏷️', desc: 'Mallar, copy, bilder och produktinnehåll för varje kanal. Exempel: Contentful, AEM.' },
+  experimentation: { label: 'Experiment & A/B', sys: 'Holdout & varianttest', icon: '🧪', desc: 'Testar budskap, erbjudanden och regler mot kontrollgrupp med tydliga mål.' },
+  decision: { label: 'Realtime decisioning', sys: 'NBO / NBA-arbitrage', icon: '🧠', desc: 'Utvärderar kandidater och väljer nästa bästa erbjudande eller åtgärd i realtid. Exempel: Adobe Target, Salesforce Interaction Studio, in-house.' },
+  rules: { label: 'Affärsregler', sys: 'Eligibility & suppression', icon: '⚖️', desc: 'Ägande, avtalsvillkor, avbrott, samtycke och kommersiell suppression.' },
+  scoring: { label: 'Scoringmodeller', sys: 'Propensity & risk', icon: '📈', desc: 'EV-benägenhet, churn-risk, grönbenägenhet och solintresse — batch och realtid.' },
+  segments: { label: 'Segmentering', sys: 'Regler & modeller', icon: '🧩', desc: 'Härledda segment som ev prospects, churn risk och green affinity high.' },
+  catalog: { label: 'Erbjudandekatalog', sys: 'Offers & actions', icon: '🗂️', desc: 'Erbjudanden, åtgärder och produkter med målgrupp, villkor och prioritet.' },
+  policy: { label: 'Kontaktpolicy', sys: 'Frekvens & preferens', icon: '⏱️', desc: 'Globala caps, kanalpreferens, tysta timmar och kontakthistorik.' },
+  events: { label: 'Eventinsamling', sys: 'Streaming & batch', icon: '⚡', desc: 'Sidvisningar, klick, köp, kalkylatorer och servicehändelser. Exempel: Kafka, Segment, Snowplow.' },
+  cdp: { label: 'Kundprofil / CDP', sys: '360°-profil', icon: '🗄️', desc: 'Enhetlig profil av kund, avtal, innehav, interaktioner och modellresultat. Exempel: Adobe RTCDP, Salesforce Data Cloud.' },
+  identity: { label: 'Identitetsupplösning', sys: 'Cookie → kund', icon: '🔐', desc: 'Kopplar anonyma cookies och enheter till kund och hushåll — grunden för att sy ihop signaler.' },
+  consent: { label: 'Samtycke & preferenser', sys: 'GDPR & kanalval', icon: '✅', desc: 'Personalisering på/av, kanalval, retention och rättslig grund. Exempel: OneTrust, Usercentrics.' },
+  master: { label: 'Masterdata', sys: 'Kund, avtal, produkt', icon: '📄', desc: 'CRM-, avtals- och produktmaster; ägande, bindningar och faktureringsunderlag.' },
+  geo: { label: 'Plats & nätdata', sys: 'Geo, IP & avbrott', icon: '📍', desc: 'Ungefärlig plats via IP/adress, elområde och avbrottsstatus från nätet.' },
+  analytics: { label: 'Analytics & attribution', sys: 'Konvertering & lift', icon: '📊', desc: 'Impressions, klick, konvertering och inkrementell effekt per kanal och erbjudande.' },
+  decisionlog: { label: 'Beslutslogg', sys: 'Spårbarhet & audit', icon: '🧾', desc: 'Varför visades detta? Indata, regler, modellversion och utfall sparas för analys och audit.' },
+  governance: { label: 'Monitoring & governance', sys: 'Kvalitet & privacy', icon: '🛡️', desc: 'Modell- och datadrift, åtkomst, retention och regelefterlevnad.' },
 }
 
 const ARCH_SCENARIOS = {
   ev_journey: {
     title: 'Elbilsresan', persona: 'Jonas Svensson',
-    summary: 'Signaler från elbilsidor höjer EV-benägenheten. Beslutsmodulen går från utforskande till paketerbjudande och välkomstmeddelanden går ut på fyra kanaler.',
-    nodes: ['web', 'inbox', 'sms', 'email', 'push', 'nbo', 'nba', 'webInbox', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'router', 'cdp', 'contracts', 'content', 'analytics', 'identity'],
+    summary: 'Signaler från elbilsidor höjer EV-benägenheten från 42% till 85%. Segmentet ev prospects tänds, paketerbjudandet vinner och välkomstflödet går ut på fyra kanaler.',
+    nodes: ['web', 'inbox', 'sms', 'email', 'push', 'surfaces', 'journey', 'content', 'decision', 'rules', 'scoring', 'segments', 'catalog', 'policy', 'events', 'cdp', 'identity', 'consent', 'master', 'analytics', 'decisionlog', 'governance'],
     flow: [
-      { node: 'web', title: 'Besök på elbilsladdning', text: 'Besökaren öppnar /ev-charging och räknar på hemmaladdning.' },
-      { node: 'signals', title: 'Signaler registreras', text: 'ev_charging_page_view och tariff_calculator_use skickas till events-API:t.' },
-      { node: 'scoring', title: 'Profilen räknas om', text: 'EV-benägenheten går från 0,42 till 0,85.' },
-      { node: 'segments', title: 'Nytt segment', text: 'Profilen kvalar in i ev_prospects och slår igenom i nästa beslut.' },
-      { node: 'decision', title: 'Beslut: paketerbjudande', text: 'Kvartspris + Smartladdning vinner. Ägt paket undertrycker NBO; kvar blir NBA och serviceinnehåll.' },
-      { node: 'router', title: 'Meddelanden går ut', text: 'Välkomstmeddelande till inkorg, SMS, e-post och push.' },
-      { node: 'analytics', title: 'Mätning', text: 'Beslut, klick och konvertering loggas för uppföljning.' },
+      { node: 'web', title: 'Besök på elbilsladdning', text: 'Besökaren går till /ev-charging och räknar på hemmaladdning.' },
+      { node: 'events', title: 'Signaler samlas', text: 'ev_charging_page_view och tariff_calculator_use går till eventströmmen.' },
+      { node: 'scoring', title: 'EV 42% → 85%', text: 'Scoringmodellen väger in sidbesök, kalkylator och avsaknad av laddbox.' },
+      { node: 'segments', title: 'Nytt segment: ev prospects', text: 'EV ≥ 60% och kunden äger inte paketet → segmentet tänds.' },
+      { node: 'decision', title: 'Paketerbjudande vinner', text: 'Beslutsmodulen rankar Kvartspris + Smartladdning; regler och katalog ger rätt villkor.' },
+      { node: 'journey', title: 'Välkomstflöde', text: 'Journey orchestration skickar till inkorg, SMS, e-post och push via kontaktpolicyn.' },
+      { node: 'analytics', title: 'Mätning & logg', text: 'Impressions, klick, konvertering och beslutsunderlag sparas för uppföljning.' },
     ],
   },
   outage: {
     title: 'Strömavbrott i området', persona: 'Karin Larsson',
-    summary: 'En driftstörning slår igenom i kundprofilen. Allt kommersiellt undertrycks och serviceinformation går ut på webb, i inkorgen, via SMS och push.',
-    nodes: ['web', 'inbox', 'sms', 'push', 'nba', 'webInbox', 'journey', 'decision', 'router', 'cdp', 'contracts', 'incident', 'analytics', 'identity'],
+    summary: 'En driftstörning matchas mot område och kund. Allt kommersiellt undertrycks, serviceinformation går ut på webb, SMS, push och inkorg — utloggad räcker geo/IP för områdesbannern.',
+    nodes: ['web', 'inbox', 'sms', 'push', 'surfaces', 'journey', 'content', 'decision', 'rules', 'events', 'cdp', 'identity', 'consent', 'master', 'geo', 'analytics', 'decisionlog', 'governance'],
     flow: [
-      { node: 'incident', title: 'Avbrott rapporteras', text: 'Driftfeed registrerar ett aktivt avbrott i kundens lokala elnät.' },
-      { node: 'decision', title: 'Kommersiellt undertrycks', text: 'Beslutsmodulen växlar till service alert och stoppar alla säljerbjudanden.' },
-      { node: 'cdp', title: 'Berörd kund identifieras', text: 'Kundprofil, avtal och område kopplas ihop med incidenten.' },
-      { node: 'router', title: 'Serviceinformation', text: 'SMS, push och inkorg får status, område och beräknad återställning.' },
-      { node: 'nba', title: 'Webben visar detaljer', text: 'Banner och NBA-yta visar status, avtal och ETA; inkorgen samlar historiken.' },
-      { node: 'analytics', title: 'Uppföljning', text: 'Leverans och kundrespons mäts per kanal.' },
+      { node: 'geo', title: 'Avbrott i nätområdet', text: 'Nät- och avbrottsdata matchas mot elområde; utloggad används ungefärlig plats från IP.' },
+      { node: 'events', title: 'Incident-signal', text: 'outage_reported går in i eventströmmen och kundprofilen.' },
+      { node: 'identity', title: 'Vem påverkas?', text: 'Utloggad: geo/IP. Inloggad: kund-ID, adress och avtal.' },
+      { node: 'rules', title: 'Kommersiellt stoppas', text: 'Suppression: inga säljerbjudanden så länge avbrottet är aktivt.' },
+      { node: 'decision', title: 'Service alert', text: 'Beslutsmodulen väljer driftinformation som NBA; NBO lämnas tomt.' },
+      { node: 'journey', title: 'Serviceutskick', text: 'SMS, push och inkorg får status, område och beräknad återställning.' },
+      { node: 'analytics', title: 'Uppföljning', text: 'Leverans och kundrespons mäts; beslutet loggas.' },
     ],
   },
   price_compare: {
     title: 'Kund i riskzonen', persona: 'Lars Eriksson',
-    summary: 'Jämförelsesignaler höjer churn-risken. Retentionserbjudandet tar över, det kommersiella NBO:t undertrycks och ett personligt mail går ut.',
-    nodes: ['web', 'nbo', 'nba', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'router', 'cdp', 'contracts', 'email', 'analytics', 'identity'],
+    summary: 'Jämförelsesignaler höjer churn-risken från 42% till 80%. Segmentet churn risk tänds, säljerbjudandet stoppas och retention tar över.',
+    nodes: ['web', 'email', 'surfaces', 'journey', 'content', 'decision', 'rules', 'scoring', 'segments', 'catalog', 'policy', 'events', 'cdp', 'identity', 'consent', 'master', 'analytics', 'decisionlog', 'governance'],
     flow: [
       { node: 'web', title: 'Jämför elavtal', text: 'Kunden öppnar jämförelsesidan och tittar på flera avtal.' },
-      { node: 'signals', title: 'Jämförelsesignal', text: 'comparison_view registreras och väger tungt i churn-modellen.' },
-      { node: 'scoring', title: 'Churn-risk stiger', text: 'Risken går från 0,42 till 0,80.' },
-      { node: 'segments', title: 'Segment: churn_risk', text: 'Kunden flyttas till risksegmentet.' },
-      { node: 'decision', title: 'Retention, inte sälj', text: 'Grönt erbjudande exkluderas; retention blir rekommenderad åtgärd.' },
-      { node: 'router', title: 'Personligt mail', text: 'Ett retentionsmail går ut med erbjudande om genomgång av avtalet.' },
-      { node: 'analytics', title: 'Mätning', text: 'Klick och eventuell konvertering följs upp.' },
+      { node: 'events', title: 'Jämförelsesignal', text: 'comparison_view väger tungt i churn-modellen.' },
+      { node: 'scoring', title: 'Churn 42% → 80%', text: 'Risken passerar tröskeln för churn risk.' },
+      { node: 'segments', title: 'Segment: churn risk', text: 'Kunden flyttas till risksegmentet.' },
+      { node: 'rules', title: 'Retention, inte sälj', text: 'Kommersiellt NBO undertrycks; retentionsåtgärd tillåts.' },
+      { node: 'content', title: 'Personligt mail', text: 'Journey orchestration och CMS skapar retentionsmailet.' },
+      { node: 'analytics', title: 'Mätning', text: 'Klick och konvertering följs upp per kanal.' },
     ],
   },
   green_interest: {
     title: 'Går grönt', persona: 'Anders Petersson',
-    summary: 'Grönt intresse höjer benägenheten och byter erbjudandet till fossilfri rörlig el. Nyhetsbrevet blir en del av profilen och tystar NBA:t.',
-    nodes: ['web', 'nbo', 'nba', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'router', 'cdp', 'contracts', 'content', 'email', 'analytics', 'identity'],
+    summary: 'Grönt intresse höjer benägenheten från 55% till 80%. Segmentet green affinity high tänds, fossilfri el blir NBO och nyhetsbrevet sparas i profilen.',
+    nodes: ['web', 'email', 'surfaces', 'journey', 'content', 'decision', 'rules', 'scoring', 'segments', 'catalog', 'policy', 'events', 'cdp', 'identity', 'consent', 'master', 'analytics', 'decisionlog', 'governance'],
     flow: [
       { node: 'web', title: 'Läser om fossilfri el', text: 'Besök på grön toppsida och avtalsjämförelse.' },
-      { node: 'signals', title: 'Gröna signaler', text: 'green_tariff_page_view och solar_page_view registreras.' },
-      { node: 'scoring', title: 'Grönbenägenhet', text: 'Profilen går till 0,80.' },
-      { node: 'segments', title: 'Segment: green_affinity_high', text: 'Profilen matchar grönt erbjudande.' },
-      { node: 'decision', title: 'Nytt NBO', text: 'Fossilfri rörlig el med fri månadsavgift vinner över standarderbjudandet.' },
-      { node: 'cdp', title: 'Nyhetsbrev sparas', text: 'Prenumerationen skrivs till profilen och nyhetsbrevs-NBA:t tas bort.' },
-      { node: 'router', title: 'Välkomstmail', text: 'Ett välkomstmail med tips om fossilfri el skickas.' },
+      { node: 'events', title: 'Gröna signaler', text: 'green_tariff_page_view och solar_page_view registreras.' },
+      { node: 'scoring', title: 'Green 55% → 80%', text: 'Grönbenägenheten passerar 70%-tröskeln.' },
+      { node: 'segments', title: 'Segment: green affinity high', text: 'Profilen matchar grönt erbjudande.' },
+      { node: 'decision', title: 'Nytt NBO', text: 'Fossilfri rörlig el med fri månadsavgift rankas högst.' },
+      { node: 'consent', title: 'Nyhetsbrev sparas', text: 'Samtycke och preferens uppdateras; nyhetsbrevs-NBA:t tas bort.' },
+      { node: 'analytics', title: 'Mätning', text: 'Välkomstmail, klick och prenumerationsgrad följs upp.' },
     ],
   },
   anon_smart: {
     title: 'Smart targeting (okänd)', persona: 'Anonym besökare',
-    summary: 'Utan konto eller profil byggs en tillfällig beteendeprofil från cookien. Beslutet fattas i realtid och visas bara på webben.',
-    nodes: ['web', 'nbo', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'content', 'analytics', 'identity'],
+    summary: 'Utan konto byggs en anonym beteendeprofil från cookien. EV-scoren når 70%, segmentet ev prospects tänds och beslutet visas bara på webben.',
+    nodes: ['web', 'surfaces', 'journey', 'decision', 'rules', 'scoring', 'segments', 'catalog', 'content', 'events', 'cdp', 'identity', 'consent', 'analytics', 'decisionlog', 'governance'],
     flow: [
       { node: 'web', title: 'Utforskar elbilsladdning', text: 'En okänd besökare öppnar /ev-charging.' },
-      { node: 'identity', title: 'Cookie, inte konto', text: 'Besökaren identifieras bara av en cookie — ingen kundprofil finns.' },
-      { node: 'signals', title: 'Beteendesignaler', text: 'Sidvisningar och klick samlas under den anonyma kakan.' },
-      { node: 'scoring', title: 'Realtidsscore', text: 'EV-benägenheten beräknas direkt från sessionens signaler.' },
-      { node: 'segments', title: 'Tillfälligt segment', text: 'Besökaren behandlas som ev_prospects i det aktuella beslutet.' },
+      { node: 'identity', title: 'Cookie, inte konto', text: 'Endast en anonym cookie; ingen kundprofil finns.' },
+      { node: 'events', title: 'Beteendesignaler', text: 'Sidvisningar och klick samlas under cookien.' },
+      { node: 'scoring', title: 'EV 70% i realtid', text: 'Modellen räknar på sessionens signaler.' },
+      { node: 'segments', title: 'Tillfälligt segment', text: 'Besökaren behandlas som ev prospects i det aktuella beslutet.' },
       { node: 'decision', title: 'Beslut utan profil', text: 'Beslutsmodulen väljer paketerbjudandet med stöd av katalog och innehåll.' },
-      { node: 'nbo', title: 'Personlig yta', text: 'Webben visar “Baserat på ditt beteende” — ingen inkorg eller utskick.' },
+      { node: 'surfaces', title: 'Personlig yta', text: 'Webben visar “Baserat på ditt beteende”; ingen inkorg eller utskick.' },
     ],
   },
   anon_to_profile: {
     title: 'Okänd besökare → blir kund', persona: 'Anders Petersson',
-    summary: 'Anonyma signaler knyts till en profil vid identifiering. Avtal, innehav och segment uppdateras och nya meddelanden går ut.',
-    nodes: ['web', 'inbox', 'email', 'push', 'nbo', 'nba', 'webInbox', 'journey', 'signals', 'scoring', 'segments', 'decision', 'catalog', 'router', 'cdp', 'contracts', 'content', 'analytics', 'identity'],
+    summary: 'Anonyma signaler knyts till Anders vid inloggning. EV går från 10% till 70%, avtal och segment uppdateras och välkomstflödet går ut.',
+    nodes: ['web', 'inbox', 'email', 'push', 'surfaces', 'journey', 'content', 'decision', 'rules', 'scoring', 'segments', 'catalog', 'policy', 'events', 'cdp', 'identity', 'consent', 'master', 'analytics', 'decisionlog', 'governance'],
     flow: [
-      { node: 'signals', title: 'Anonyma signaler', text: 'Besökarens EV-intresse samlas under cookien.' },
+      { node: 'events', title: 'Anonyma signaler', text: 'EV-intresset samlas under cookien.' },
       { node: 'identity', title: 'Identify', text: 'Vid inloggning knyts cookien till kundprofilen (Anders).' },
-      { node: 'cdp', title: 'Profilen berikas', text: 'Tidigare anonyma signaler flyttas över till profilen.' },
-      { node: 'contracts', title: 'Avtal registreras', text: 'Fast elpris läggs till som innehav och styr fortsatt suppression.' },
+      { node: 'cdp', title: 'Profilen berikas', text: 'Tidigare anonyma signaler flyttas över till 360°-profilen.' },
+      { node: 'master', title: 'Avtal registreras', text: 'Fast elpris läggs till som innehav och styr fortsatt suppression.' },
+      { node: 'scoring', title: 'EV 10% → 70%', text: 'Identifieringen och de anonyma signalerna höjer EV-benägenheten.' },
       { node: 'decision', title: 'Nytt beslut', text: 'Scoring, segment och katalog ger Kvartspris + Smartladdning.' },
-      { node: 'router', title: 'Välkomstflöde', text: 'E-post, push och inkorg får välkomstmeddelanden.' },
-      { node: 'analytics', title: 'Mätning', text: 'Identifiering, beslut och konvertering loggas.' },
+      { node: 'journey', title: 'Välkomstflöde', text: 'E-post, push och inkorg får välkomstmeddelanden.' },
     ],
   },
 }
@@ -963,11 +981,11 @@ function renderSite() {
     <header class="site-header">
       <div class="utility">
         <div class="utility-inner">
-          <a href="#">Privat</a><a href="#">Företag</a><a href="#" data-nav="inbox">Mitt E.ON</a>
+          <a href="#">Privat</a><a href="#">Företag</a><a href="#" data-nav="inbox">Mitt Hall Energy</a>
         </div>
       </div>
       <div class="nav-inner">
-        <a href="#" class="logo" data-nav="home">e·on</a>
+        <a href="#" class="logo" data-nav="home">Hall Energy</a>
         <nav class="main-nav">${nav}</nav>
         ${known ? `
           <button class="bell" data-nav="inbox" aria-label="Inkorg" title="Inkorg">
@@ -996,7 +1014,13 @@ function renderSite() {
               <p><b>Beräknad återställning:</b> ca 2 timmar</p>
               <button data-nav="inbox">Se detaljer i inkorgen →</button>
             </div>`
-            : `<button data-action="toggle-login">Logga in för detaljer om ditt avtal</button>`}
+            : `<div class="outage-anon">
+                <button data-action="toggle-login">Logga in för detaljer om ditt avtal</button>
+                <details class="outage-why">
+                  <summary>Varför visas detta?</summary>
+                  <p>Avbrottet matchas mot en ungefärlig plats som härleds från din IP-adress. Det räcker för att visa att ett avbrott finns i området, men inte för att koppla det till din adress eller ditt avtal. Logga in för exakt status.</p>
+                </details>
+              </div>`}
         </div>
       </div>` : ''}
     ${state.toast ? `
@@ -1014,7 +1038,7 @@ function renderSite() {
       <div class="page">
         <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:space-between;align-items:center">
           <div>
-            <div class="logo" style="font-style:italic;font-weight:900">e·on</div>
+            <div class="logo" style="font-weight:900">Hall Energy</div>
             <div style="font-size:13px;margin-top:4px">Ren energi för ditt hem.</div>
           </div>
           <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:13px">
@@ -1022,7 +1046,7 @@ function renderSite() {
             <a href="#" data-nav="architecture">Arkitektur</a>
           </div>
         </div>
-        <p style="font-size:11px;margin-top:24px">© 2024 E.ON Nordics · Personaliseringsprototyp v2.0 · Arkitekturdemo. Inte ett riktigt kommersiellt erbjudande.</p>
+        <p style="font-size:11px;margin-top:24px">© 2024 Hall Energy Nordics · Personaliseringsprototyp v2.1 · Arkitekturdemo. Inte ett riktigt kommersiellt erbjudande.</p>
       </div>
     </footer>`
 }
@@ -1256,7 +1280,7 @@ function renderInbox() {
       <div class="inbox-icon" style="background:#E7F0FB">📥</div>
       <div style="flex:1;min-width:0">
         <span class="inbox-cat" style="background:#E7F0FB;color:#2563EB">Meddelande</span>
-        <h3>${esc(m.subject || 'E.ON')}</h3>
+        <h3>${esc(m.subject || 'Hall Energy')}</h3>
         <p>${esc(m.body)}</p>
         <div class="inbox-meta">${esc(scenarioShort(m.scenarioKey))} · steg ${m.stepIndex + 1} · ${m.time}</div>
       </div>
@@ -1300,9 +1324,10 @@ function archNodeButton(id) {
 
 function archFlowRow(i) {
   const labels = [
-    'klick & sidvisningar <b>↓</b> &nbsp;·&nbsp; innehåll & erbjudanden <b>↑</b>',
-    'beslut & åtgärder <b>↓</b> &nbsp;·&nbsp; profil & kontext <b>↑</b>',
-    'signaler <b>↓</b> &nbsp;·&nbsp; kunddata & status <b>↑</b>',
+    'engagemang & signaler <b>↓</b> &nbsp;·&nbsp; innehåll & erbjudanden <b>↑</b>',
+    'beslut & mål <b>↓</b> &nbsp;·&nbsp; kontext & triggers <b>↑</b>',
+    'features & regler <b>↓</b> &nbsp;·&nbsp; profiler & signaler <b>↑</b>',
+    'loggar & utfall <b>↓</b> &nbsp;·&nbsp; insikter & styrning <b>↑</b>',
   ]
   return `<div class="arch-flow">${labels[i - 1]}</div>`
 }
@@ -1376,7 +1401,7 @@ function archMatrix() {
   const short = { ev_journey: 'Elbil', outage: 'Avbrott', price_compare: 'Riskzon', green_interest: 'Grönt', anon_smart: 'Anonym', anon_to_profile: 'Anon→kund' }
   const head = `<tr><th>Förmåga</th>${SCENARIOS.map((s) => `<th title="${esc(s.title)}">${esc(short[s.key])}</th>`).join('')}</tr>`
   const body = ARCH_LAYERS.map((layer) => {
-    const rows = layer.nodes.filter((id) => id !== 'admin')
+    const rows = layer.nodes
     if (!rows.length) return ''
     return `<tr class="group"><td colspan="${keys.length + 1}">${esc(layer.title)}</td></tr>` +
       rows.map((id) => {
@@ -1399,14 +1424,14 @@ function renderArchitecture() {
   return `
     <section class="arch-hero">
       <div class="page">
-        <div class="kicker"><span class="dot"></span> Arkitektur · v2.0</div>
-        <h1>Så hänger det ihop</h1>
-        <p>Förmågorna och systemen bakom de sex demo-scenarierna — från kundmöte och signalintag till beslut, katalog och utgående kanaler. Välj ett scenario för att se vad som spelar in.</p>
+        <div class="kicker"><span class="dot"></span> Referensarkitektur · retail personalisation</div>
+        <h1>Så hänger personaliseringen ihop</h1>
+        <p>En referensarkitektur för retail och energi — från signal och identitet till beslut, kanal och mätning. Välj ett scenario för att se vilka förmågor och system som används.</p>
         <div class="arch-stats">
           <span>6 scenarier</span>
           <span>${ARCH_NODE_ORDER.length} förmågor</span>
-          <span>4 lager</span>
-          <span>1 beslutsmodul</span>
+          <span>5 lager</span>
+          <span>NBO + NBA</span>
         </div>
       </div>
     </section>
@@ -1443,7 +1468,7 @@ function renderArchitecture() {
         <h2 style="font-size:22px;margin:38px 0 6px">Förmågor per scenario</h2>
         <p style="color:#6B7280;font-size:13px;margin:0 0 14px">Samma underlag som diagrammet — bra för att se var ett scenario gör avtryck.</p>
         <div class="arch-tablewrap">${archMatrix()}</div>
-        <div class="arch-note"><b>Om demon:</b> i den här fristående versionen är CDP, scoring, beslutsmodul och meddelanderouter hårdkodade i JavaScript. I Next.js-versionen är de riktiga API:er mot Prisma/SQLite. Backoffice (admin) ingår i plattformen men är inte en del av kundscenarierna.</div>
+        <div class="arch-note"><b>Referensarkitektur:</b> modellen beskriver förmågor och system för retailpersonalisering — inte demoappens kod. Systemexemplen är vägledande; i demon simuleras hela kedjan i JavaScript. Experiment & A/B ingår i referensmodellen men används inte i de sex demo-scenarierna.</div>
       </div>
     </section>`
 }
@@ -1451,7 +1476,7 @@ function renderArchitecture() {
 
 // ── Rendering: channel rail ───────────────────────────────────────────────
 const CHANNELS = [
-  { key: 'inbox', title: 'Inkorg', caption: 'Meddelanden på eon.se', icon: '📥', bg: '#E7F0FB', headerBg: '#FFFFFF', accent: '#2563EB', light: true },
+  { key: 'inbox', title: 'Inkorg', caption: 'Meddelanden på hallenergy.se', icon: '📥', bg: '#E7F0FB', headerBg: '#FFFFFF', accent: '#2563EB', light: true },
   { key: 'sms', title: 'SMS', caption: 'SMS till mobilen', icon: '💬', bg: '#0F172A', headerBg: 'rgba(255,255,255,0.06)', accent: '#34D399', light: false },
   { key: 'email', title: 'E-post', caption: 'E-post till inkorgen', icon: '✉️', bg: '#FFF9EC', headerBg: '#FFFFFF', accent: '#F59E0B', light: true },
   { key: 'push', title: 'Push', caption: 'Notiser i appen', icon: '🔔', bg: '#F6F2FF', headerBg: '#FFFFFF', accent: '#C026D3', light: true },
@@ -1461,26 +1486,22 @@ function renderRail() {
   const msgs = completedMessages()
   const total = msgs.length
   const key = state.customerId || (state.anonymous ? 'anon' : '')
-  let body
-  if (!key) {
-    body = emptyRail('Välj en persona (eller kör en anonym demo) så visas alla kanaler här.')
-  } else if (total === 0) {
-    body = `<p class="rail-intro">Inga meddelanden ännu. Välj ett scenario i persona-baren — bara det scenariots meddelanden visas här, steg för steg.</p>
-      ${emptyRail('Inkorg, SMS, e-post och push fylls här tillsammans — men bara för det scenario som är aktivt.')}`
-  } else {
-    const panels = CHANNELS.map((c, i) => {
-      const list = msgs.filter((m) => m.channel === c.key)
-      return `<div class="${i > 0 ? 'divider' : ''}">${panel(c, list)}</div>`
-    }).join('')
-    body = `<p class="rail-intro">${total} meddelanden ut till kunden, visas på alla kanaler samtidigt.</p>${panels}`
-  }
+  const intro = !key
+    ? 'Välj en persona (eller kör en anonym demo) så visas alla kanaler här.'
+    : total === 0
+      ? 'Inga meddelanden ännu. Kanalerna finns alltid med — välj ett scenario i persona-baren, så fylls de steg för steg.'
+      : `${total} meddelanden ut till kunden, visas på alla kanaler samtidigt.`
+  const panels = CHANNELS.map((c, i) => {
+    const list = msgs.filter((m) => m.channel === c.key)
+    return `<div class="${i > 0 ? 'divider' : ''}">${panel(c, list)}</div>`
+  }).join('')
   return `
     <div class="rail-head">
       <p class="kicker">Utgående kanaler</p>
       <h2>Så når vi kunden</h2>
       <p>Inkorg · SMS · E-post · Push</p>
     </div>
-    <div class="rail-body">${body}</div>`
+    <div class="rail-body"><p class="rail-intro">${intro}</p>${panels}</div>`
 }
 
 function emptyRail(hint) {
@@ -1506,7 +1527,7 @@ function panel(c, list) {
   } else {
     inner = `<div class="panel-body">${list.map((m, i) => `
       <div class="msg" style="border-bottom:${i < list.length - 1 ? '1px solid ' + divider : 'none'}">
-        <div class="top"><b style="color:${primary}">${esc(m.subject || 'E.ON')}</b><span>${m.time}</span></div>
+        <div class="top"><b style="color:${primary}">${esc(m.subject || 'Hall Energy')}</b><span>${m.time}</span></div>
         <p style="color:${c.light ? 'rgba(26,26,26,.65)' : 'rgba(255,255,255,.7)'}">${esc(m.body)}</p>
         <p class="meta">${scenarioShort(m.scenarioKey)} · ${m.stepIndex + 1}</p>
       </div>`).join('')}</div>`
@@ -1540,8 +1561,9 @@ function renderScenarioBar() {
       ${!done
         ? `<button class="step-btn" data-action="next-step">▶ ${esc(step.label)}</button>`
         : `<span style="color:#4ADE80;font-weight:700">Klart</span>`}
-      <button class="arch-link" data-action="open-architecture">🧩 Arkitektur</button>
       <button class="icon-btn" data-action="exit-scenario" title="Avsluta scenariot">✕</button>
+      <span class="spacer"></span>
+      <button class="arch-link" data-action="open-architecture">🧩 Arkitektur</button>
     </div>
     ${lastNotes.length ? `<p class="scenario-notes"><span class="check">✓</span> ${lastNotes.map(esc).join(' · ')}</p>` : ''}`
 }
